@@ -20,6 +20,7 @@ import java.util.Collection;
 
 import it.chiarani.beacon_detection.AppExecutors;
 import it.chiarani.beacon_detection.BeaconDetectionApp;
+import it.chiarani.beacon_detection.controllers.ScannerController;
 import it.chiarani.beacon_detection.db.AppDatabase;
 import it.chiarani.beacon_detection.db.entities.BeaconDeviceEntity;
 
@@ -103,8 +104,8 @@ public class ServiceBeaconDiscovery extends Service implements BeaconConsumer, R
 
         mBeaconManager.getBeaconParsers().add(new BeaconParser().
                 setBeaconLayout(BeaconParser.EDDYSTONE_TLM_LAYOUT));
-        //mBeaconManager.setForegroundScanPeriod(100);
-        //mBeaconManager.setForegroundBetweenScanPeriod(0);
+        mBeaconManager.setForegroundScanPeriod(ScannerController.getScanPeriod());
+        mBeaconManager.setForegroundBetweenScanPeriod(ScannerController.getBetweenScanPeriod());
 
     }
 

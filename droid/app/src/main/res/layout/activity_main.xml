@@ -71,7 +71,7 @@
         android:layout_height="wrap_content"
         android:layout_marginLeft="16dp"
         android:fontFamily="@font/os_bold"
-        android:text="Run a scan for view available BLE EPs"
+        android:text="Run discovery for view available beacons"
         android:textColor="#000000"
         android:textSize="18sp"
         app:layout_constraintHorizontal_bias="0.0"

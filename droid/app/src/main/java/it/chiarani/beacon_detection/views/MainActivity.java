@@ -1,11 +1,15 @@
 package it.chiarani.beacon_detection.views;
 
 import android.Manifest;
+import androidx.appcompat.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.CountDownTimer;
+import android.text.Editable;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -29,6 +33,7 @@ import it.chiarani.beacon_detection.AppExecutors;
 import it.chiarani.beacon_detection.BeaconDetectionApp;
 import it.chiarani.beacon_detection.R;
 import it.chiarani.beacon_detection.adapters.BeaconAdapter;
+import it.chiarani.beacon_detection.controllers.ScannerController;
 import it.chiarani.beacon_detection.databinding.ActivityMainBinding;
 import it.chiarani.beacon_detection.db.AppDatabase;
 import it.chiarani.beacon_detection.models.BeaconDevice;
@@ -96,7 +101,10 @@ public class MainActivity extends AppCompatActivity {
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe( entities -> {
-                    binding.activityMainTxtScan.setText("Found (" + entities.size() + ") BLE EPs");
+                    if(entities != null && entities.size() == 0) {
+                        return;
+                    }
+                    binding.activityMainTxtScan.setText("Found (" + entities.size() + ") Beacon(s)");
                     beaconList.clear();
                     beaconList.addAll(entities);
                     adapterTags.notifyDataSetChanged();
@@ -114,6 +122,35 @@ public class MainActivity extends AppCompatActivity {
         binding.activityMainRvReadings.setAdapter(adapterTags);
 
         binding.activityMainBtnSearch.setOnClickListener( v -> startBeaconDiscoveryService());
+        binding.activityMainBtnSettings.setOnClickListener( v -> startSettingsDialog());
+
+    }
+
+    private void startSettingsDialog() {
+        AlertDialog.Builder alert = new AlertDialog.Builder(this);
+        final EditText edittext = new EditText(this);
+        alert.setMessage("Number in ms (100-10000) - Actual:" + ScannerController.getScanPeriod() + "ms");
+        alert.setTitle("Set the scan frequency");
+
+        alert.setView(edittext);
+
+        alert.setPositiveButton("Set", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
+                //What ever you want to do with the value
+          //      Editable YouEditTextValue = edittext.getText();
+                ScannerController.setScanPeriod(Long.parseLong(edittext.getText().toString()));
+             //   //OR
+              //  String YouEditTextValue = edittext.getText().toString();
+            }
+        });
+
+        alert.setNegativeButton("Back", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
+                // what ever you want to do with No option.
+            }
+        });
+
+        alert.show();
     }
 
     private void startBeaconDiscoveryService() {
