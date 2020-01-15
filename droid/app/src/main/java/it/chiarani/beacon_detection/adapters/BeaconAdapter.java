@@ -45,7 +45,7 @@ public class BeaconAdapter  extends RecyclerView.Adapter<BeaconAdapter.ViewHolde
     @Override
     public void onBindViewHolder(@NonNull BeaconAdapter.ViewHolder holder, int position) {
         holder.txtName.setText(mItems.get(position).getAddress());
-        holder.txtInfo.setText("Distance ~" + mItems.get(position).getDistance() + "mt");
+        holder.txtInfo.setText(mItems.get(position).getRssi()+" Distance ~" + mItems.get(position).getDistance() + "mt");
     }
 
 

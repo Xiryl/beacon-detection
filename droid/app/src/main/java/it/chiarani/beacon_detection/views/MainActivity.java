@@ -92,8 +92,9 @@ public class MainActivity extends AppCompatActivity {
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe( entities -> {
-
-                    int x = 1;
+                    beaconList.clear();
+                    beaconList.addAll(entities);
+                    adapterTags.notifyDataSetChanged();
 
                 }, throwable -> {
                     // Toast.makeText(this, getString(R.string.txtGenericError), Toast.LENGTH_LONG).show();
