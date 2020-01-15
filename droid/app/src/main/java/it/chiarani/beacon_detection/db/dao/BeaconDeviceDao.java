@@ -1,5 +1,6 @@
 package it.chiarani.beacon_detection.db.dao;
 
+import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
 import androidx.room.Delete;
 import androidx.room.Insert;
@@ -15,7 +16,7 @@ import it.chiarani.beacon_detection.db.entities.BeaconDeviceEntity;
 @Dao
 public interface BeaconDeviceDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    Completable insert(BeaconDeviceEntity beacon);
+    void insert(BeaconDeviceEntity beacon);
 
     @Query("SELECT * FROM beacons")
     Flowable<BeaconDeviceEntity> get();

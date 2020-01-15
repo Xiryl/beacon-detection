@@ -4,6 +4,7 @@ import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
@@ -18,10 +19,15 @@ import org.altbeacon.beacon.Region;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.schedulers.Schedulers;
+import it.chiarani.beacon_detection.AppExecutors;
+import it.chiarani.beacon_detection.BeaconDetectionApp;
 import it.chiarani.beacon_detection.R;
 import it.chiarani.beacon_detection.adapters.BeaconAdapter;
 import it.chiarani.beacon_detection.databinding.ActivityMainBinding;
-import it.chiarani.beacon_detection.db.DataSource;
+import it.chiarani.beacon_detection.db.AppDatabase;
 import it.chiarani.beacon_detection.models.BeaconDevice;
 import it.chiarani.beacon_detection.services.ServiceBeaconDiscovery;
 
@@ -29,7 +35,7 @@ public class MainActivity extends AppCompatActivity {
 
     ActivityMainBinding binding;
     private static final String TAG = "main activity";
-
+    private final CompositeDisposable mDisposable = new CompositeDisposable();
     private BeaconManager mBeaconManager;
     private Region beaconRegion;
     private List<BeaconDevice> beaconList = new ArrayList<>();
@@ -59,6 +65,29 @@ public class MainActivity extends AppCompatActivity {
         //Binds this activity to the BeaconService
         mBeaconManager.bind(this);
        */
+
+        AppExecutors appExecutors = ((BeaconDetectionApp)getApplication()).getRepository().getAppExecutors();
+
+        AppDatabase appDatabase = ((BeaconDetectionApp)getApplication()).getRepository().getDatabase();
+
+       /* appDatabase.beaconDeviceDao().get().observe(this, data -> {
+            int x = data.size();
+        });*/
+
+        mDisposable.add(appDatabase.beaconDeviceDao().get()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe( entities -> {
+
+                    if(entities != null) {
+                        Toast.makeText(this, entities.getAddress(), Toast.LENGTH_LONG).show();
+                        return;
+                    }
+
+                }, throwable -> {
+                   // Toast.makeText(this, getString(R.string.txtGenericError), Toast.LENGTH_LONG).show();
+                }));
+
 
         LinearLayoutManager linearLayoutManagerTags = new LinearLayoutManager(this);
         linearLayoutManagerTags.setOrientation(RecyclerView.VERTICAL);

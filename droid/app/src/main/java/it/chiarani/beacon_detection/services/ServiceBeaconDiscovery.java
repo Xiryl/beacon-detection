@@ -18,11 +18,18 @@ import org.altbeacon.beacon.Region;
 
 import java.util.Collection;
 
+import it.chiarani.beacon_detection.AppExecutors;
+import it.chiarani.beacon_detection.BeaconDetectionApp;
+import it.chiarani.beacon_detection.db.AppDatabase;
+import it.chiarani.beacon_detection.db.entities.BeaconDeviceEntity;
+
 public class ServiceBeaconDiscovery extends Service implements BeaconConsumer, RangeNotifier {
 
 
     private BeaconManager mBeaconManager;
     private Region beaconRegion;
+    private AppExecutors mAppExecutors;
+    private AppDatabase mAppDatabase;
 
     // Possibili azioni che il servizio può intraprendere
     // START: avvia il polling
@@ -83,6 +90,8 @@ public class ServiceBeaconDiscovery extends Service implements BeaconConsumer, R
         super.onCreate();
         Log.d("I ", "ServiceBeaconDiscovery Started");
 
+        mAppExecutors = ((BeaconDetectionApp)getApplication()).getRepository().getAppExecutors();
+        mAppDatabase = ((BeaconDetectionApp)getApplication()).getRepository().getDatabase();
 
         mBeaconManager = BeaconManager.getInstanceForApplication(this);
 
@@ -134,8 +143,39 @@ public class ServiceBeaconDiscovery extends Service implements BeaconConsumer, R
     @Override
     public void didRangeBeaconsInRegion(Collection<Beacon> beacons, Region region) {
         Log.i(ServiceBeaconDiscovery.class.getSimpleName(), String.format("Found %s beacons in range", beacons.size()));
-        Log.i(ServiceBeaconDiscovery.class.getSimpleName(), "The first beacon I see is about "+beacons.iterator().next().getDistance()+" meters away. And RSSI:" + beacons.iterator().next().getRssi() + "---" + beacons.iterator().next().getBluetoothName());
-    }
+        if (beacons.size() > 0) {
+            Beacon actualBeacon = beacons.iterator().next();
+            String id1 = "null";
+            try {
+                id1 = actualBeacon.getId1().toString();
+            }
+            catch (Exception ex) {
+                Log.e("", ex.getMessage());
+            }
+
+            String id2 = "null";
+            try {
+                id2 = actualBeacon.getId2().toString();
+            }
+            catch (Exception ex) {
+                Log.e("", ex.getMessage());
+            }
+
+            String id3 = "null";
+            try {
+                id3 = actualBeacon.getId3().toString();
+            }
+            catch (Exception ex) {
+                Log.e("", ex.getMessage());
+            }
+
+            BeaconDeviceEntity tmp = new BeaconDeviceEntity(actualBeacon.getBluetoothAddress(), id1, id2, id3, actualBeacon.getRssi(), actualBeacon.getDistance(), 0,0,0,0);
+            // add beacon without tlm
+
+            mAppExecutors.diskIO().execute(() -> mAppDatabase.beaconDeviceDao().insert(tmp));
+            Log.i(ServiceBeaconDiscovery.class.getSimpleName(), "The first beacon I see is about "+beacons.iterator().next().getDistance()+" meters away. And RSSI:" + beacons.iterator().next().getRssi() + "---" + beacons.iterator().next().getBluetoothName());
+        }
+     }
 
 
     @Override
