@@ -4,6 +4,7 @@ import android.Manifest;
 import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -32,18 +33,18 @@ import it.chiarani.beacon_detection.R;
 import it.chiarani.beacon_detection.adapters.BeaconAdapter;
 import it.chiarani.beacon_detection.databinding.ActivityMainBinding;
 import it.chiarani.beacon_detection.models.BeaconItem;
+import it.chiarani.beacon_detection.services.ServiceBeaconDiscovery;
 
-public class MainActivity extends AppCompatActivity implements BeaconConsumer, RangeNotifier {
+public class MainActivity extends AppCompatActivity {
 
     ActivityMainBinding binding;
-    private static final int PERMISSION_REQUEST_FINE_LOCATION = 1;
-    private static final int PERMISSION_REQUEST_BACKGROUND_LOCATION = 2;
     private static final String TAG = "main activity";
 
     private BeaconManager mBeaconManager;
     private Region beaconRegion;
     private List<BeaconItem> beaconList = new ArrayList<>();
     BeaconAdapter adapterTags;
+    Intent beaconDiscoveryService;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,7 +54,8 @@ public class MainActivity extends AppCompatActivity implements BeaconConsumer, R
 
         askForPermissions();
 
-        mBeaconManager = BeaconManager.getInstanceForApplication(this);
+
+      /*  mBeaconManager = BeaconManager.getInstanceForApplication(this);
 
         beaconRegion = new Region("beacon_region", null, null, null);
 
@@ -66,6 +68,7 @@ public class MainActivity extends AppCompatActivity implements BeaconConsumer, R
         //mBeaconManager.setForegroundBetweenScanPeriod(0);
         //Binds this activity to the BeaconService
         mBeaconManager.bind(this);
+       */
 
         LinearLayoutManager linearLayoutManagerTags = new LinearLayoutManager(this);
         linearLayoutManagerTags.setOrientation(RecyclerView.VERTICAL);
@@ -74,9 +77,17 @@ public class MainActivity extends AppCompatActivity implements BeaconConsumer, R
 
         adapterTags = new BeaconAdapter(beaconList);
         binding.activityMainRvReadings.setAdapter(adapterTags);
+
+        binding.activityMainBtnSearch.setOnClickListener( v -> startBeaconDiscoveryService());
     }
 
-    @Override
+    private void startBeaconDiscoveryService() {
+        beaconDiscoveryService = new Intent(this, ServiceBeaconDiscovery.class);
+        beaconDiscoveryService.setAction(ServiceBeaconDiscovery.ACTIONS.START.toString());
+        startService(beaconDiscoveryService);
+    }
+
+   /*@Override
     public void onBeaconServiceConnect() {
 
         try {
@@ -140,7 +151,7 @@ public class MainActivity extends AppCompatActivity implements BeaconConsumer, R
 
                 beaconList.add(new BeaconItem(actualBeacon.getBluetoothAddress(), id1, id2, id3, actualBeacon.getRssi(), actualBeacon.getExtraDataFields().get(0),
                         actualBeacon.getExtraDataFields().get(1), actualBeacon.getExtraDataFields().get(3), actualBeacon.getExtraDataFields().get(4)));
-            }*/
+            }*/    /*
             else {
 
                 for (BeaconItem item : beaconList) {
@@ -154,7 +165,7 @@ public class MainActivity extends AppCompatActivity implements BeaconConsumer, R
             Log.i(TAG, "The first beacon I see is about "+beacons.iterator().next().getDistance()+" meters away. And RSSI:" + beacons.iterator().next().getRssi() + "---" + beacons.iterator().next().getBluetoothName());
         }
     }
-
+*/
     private void askForPermissions() {
         List<String> permissionsToAsk = new ArrayList<>();
         int requestResult = 0;
@@ -182,9 +193,15 @@ public class MainActivity extends AppCompatActivity implements BeaconConsumer, R
             // Ask for permission
             permissionsToAsk.add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
         }
-        
+
         if (permissionsToAsk.size() > 0) {
             ActivityCompat.requestPermissions(this, permissionsToAsk.toArray(new String[permissionsToAsk.size()]), requestResult);
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        stopService(beaconDiscoveryService);
+        super.onDestroy();
     }
 }
