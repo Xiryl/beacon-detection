@@ -50,31 +50,44 @@
 
 
     <TextView
-        android:id="@+id/activity_main_txt_scan"
-        android:layout_marginTop="16dp"
-        android:fontFamily="@font/os_bold"
-        android:textSize="18sp"
+        android:id="@+id/activity_main_txt_scan_timer"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginLeft="16dp"
-        android:textColor="#000000"
-        android:text="Run a scan for view available BLE EPs"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginTop="16dp"
+        android:fontFamily="@font/os_regular"
+        android:text="scanning... "
+        android:visibility="invisible"
+        android:textColor="#58BB4E"
+        android:textSize="18sp"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/activity_main_btn_search"
-        app:layout_constraintVertical_bias="0.0" />
+        app:layout_constraintTop_toBottomOf="@+id/activity_main_btn_search" />
+
+    <TextView
+        android:id="@+id/activity_main_txt_scan"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="16dp"
+        android:fontFamily="@font/os_bold"
+        android:text="Run a scan for view available BLE EPs"
+        android:textColor="#000000"
+        android:textSize="18sp"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/activity_main_txt_scan_timer" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/activityMainRvReadings"
         android:layout_width="match_parent"
-        android:layout_marginTop="50dp"
         android:layout_height="0dp"
+        android:layout_marginTop="16dp"
         android:scrollbars="none"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/activity_main_btn_collect_data">
+        app:layout_constraintTop_toBottomOf="@+id/activity_main_txt_scan">
 
     </androidx.recyclerview.widget.RecyclerView>
 

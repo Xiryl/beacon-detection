@@ -11,6 +11,7 @@ import java.util.List;
 
 import io.reactivex.Completable;
 import io.reactivex.Flowable;
+import io.reactivex.Single;
 import it.chiarani.beacon_detection.db.entities.BeaconDeviceEntity;
 
 @Dao

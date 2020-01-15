@@ -4,6 +4,8 @@ import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.os.CountDownTimer;
+import android.view.View;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -19,6 +21,7 @@ import org.altbeacon.beacon.Region;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.reactivex.Completable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.schedulers.Schedulers;
@@ -41,6 +44,7 @@ public class MainActivity extends AppCompatActivity {
     private List<BeaconDevice> beaconList = new ArrayList<>();
     BeaconAdapter adapterTags;
     Intent beaconDiscoveryService;
+    AppDatabase appDatabase;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,7 +72,7 @@ public class MainActivity extends AppCompatActivity {
 
         AppExecutors appExecutors = ((BeaconDetectionApp)getApplication()).getRepository().getAppExecutors();
 
-        AppDatabase appDatabase = ((BeaconDetectionApp)getApplication()).getRepository().getDatabase();
+        appDatabase = ((BeaconDetectionApp)getApplication()).getRepository().getDatabase();
 
        /* appDatabase.beaconDeviceDao().get().observe(this, data -> {
             int x = data.size();
@@ -92,10 +96,10 @@ public class MainActivity extends AppCompatActivity {
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe( entities -> {
+                    binding.activityMainTxtScan.setText("Found (" + entities.size() + ") BLE EPs");
                     beaconList.clear();
                     beaconList.addAll(entities);
                     adapterTags.notifyDataSetChanged();
-
                 }, throwable -> {
                     // Toast.makeText(this, getString(R.string.txtGenericError), Toast.LENGTH_LONG).show();
                 }));
@@ -113,6 +117,20 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void startBeaconDiscoveryService() {
+        binding.activityMainTxtScanTimer.setVisibility(View.VISIBLE);
+        binding.activityMainBtnSearch.setEnabled(false);
+        new CountDownTimer(30000, 1000) {
+            public void onTick(long millisUntilFinished) {
+                binding.activityMainTxtScanTimer.setText("Scanning.. seconds remaining: " + millisUntilFinished / 1000);
+            }
+
+            public void onFinish() {
+                binding.activityMainTxtScanTimer.setVisibility(View.INVISIBLE);
+                binding.activityMainBtnSearch.setEnabled(true);
+                stopService(beaconDiscoveryService);
+            }
+        }.start();
+
         beaconDiscoveryService = new Intent(this, ServiceBeaconDiscovery.class);
         beaconDiscoveryService.setAction(ServiceBeaconDiscovery.ACTIONS.START.toString());
         startService(beaconDiscoveryService);
@@ -233,6 +251,10 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
+        Completable.fromAction(appDatabase.beaconDeviceDao()::clear)
+                .subscribeOn(Schedulers.io())
+                .subscribe();
+
         stopService(beaconDiscoveryService);
         super.onDestroy();
     }
