@@ -1,5 +1,6 @@
 package it.chiarani.beacon_detection.db.entities;
 
+import androidx.annotation.NonNull;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
@@ -9,11 +10,12 @@ import java.util.Locale;
 
 import it.chiarani.beacon_detection.models.BeaconDevice;
 
-@Entity(tableName = "beacons")
+@Entity(tableName = "beacons", primaryKeys = {"id", "address"})
 public class BeaconDeviceEntity implements BeaconDevice {
 
-    @PrimaryKey(autoGenerate = true)
+    @NonNull
     private int id;
+    @NonNull
     private String address;
     private String id1;
     private String id2;

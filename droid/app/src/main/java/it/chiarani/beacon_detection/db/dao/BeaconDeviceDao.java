@@ -22,7 +22,7 @@ public interface BeaconDeviceDao {
     Flowable<BeaconDeviceEntity> get();
 
     @Query("SELECT * FROM beacons")
-    Flowable<BeaconDeviceEntity> getSync();
+    Flowable<List<BeaconDeviceEntity>> getAsList();
 
     @Query("DELETE FROM beacons")
     void clear();

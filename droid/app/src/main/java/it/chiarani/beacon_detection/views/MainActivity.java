@@ -72,7 +72,7 @@ public class MainActivity extends AppCompatActivity {
 
        /* appDatabase.beaconDeviceDao().get().observe(this, data -> {
             int x = data.size();
-        });*/
+        });
 
         mDisposable.add(appDatabase.beaconDeviceDao().get()
                 .subscribeOn(Schedulers.io())
@@ -85,7 +85,18 @@ public class MainActivity extends AppCompatActivity {
                     }
 
                 }, throwable -> {
-                   // Toast.makeText(this, getString(R.string.txtGenericError), Toast.LENGTH_LONG).show();
+                    // Toast.makeText(this, getString(R.string.txtGenericError), Toast.LENGTH_LONG).show();
+                }));*/
+
+        mDisposable.add(appDatabase.beaconDeviceDao().getAsList()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe( entities -> {
+
+                    int x = 1;
+
+                }, throwable -> {
+                    // Toast.makeText(this, getString(R.string.txtGenericError), Toast.LENGTH_LONG).show();
                 }));
 
 
