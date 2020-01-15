@@ -18,8 +18,6 @@ import org.altbeacon.beacon.Region;
 
 import java.util.Collection;
 
-import it.chiarani.beacon_detection.models.BeaconItem;
-
 public class ServiceBeaconDiscovery extends Service implements BeaconConsumer, RangeNotifier {
 
 

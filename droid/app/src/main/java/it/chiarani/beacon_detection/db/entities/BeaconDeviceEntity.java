@@ -1,16 +1,33 @@
-package it.chiarani.beacon_detection.models;
+package it.chiarani.beacon_detection.db.entities;
 
+import androidx.room.Entity;
+import androidx.room.PrimaryKey;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
-/**
- * Rappresenta un beacon
- */
-public class BeaconItem {
+import it.chiarani.beacon_detection.models.BeaconDevice;
 
-    public BeaconItem(String address, String id1, String id2, String id3, int rssi, double distance, long telemetryVersion, long batteryMilliVolts, long pduCount, long uptime) {
+@Entity(tableName = "beacons")
+public class BeaconDeviceEntity implements BeaconDevice {
+
+    @PrimaryKey(autoGenerate = true)
+    private int id;
+    private String address;
+    private String id1;
+    private String id2;
+    private String id3;
+    private int rssi;
+    private long telemetryVersion;
+    private long batteryMilliVolts;
+    private long pduCount;
+    private long uptime;
+    private String timestamp;
+    private double distance;
+    private final static String TYPE = "BLE";
+
+    public BeaconDeviceEntity(String address, String id1, String id2, String id3, int rssi, double distance, long telemetryVersion, long batteryMilliVolts, long pduCount, long uptime) {
         this.address = address;
         this.id1 = id1;
         this.id2 = id2;
@@ -25,29 +42,6 @@ public class BeaconItem {
                 Locale.getDefault()).format(new Date());
     }
 
-    public BeaconItem(String address, String id1, String id2, String id3, int rssi, double distance) {
-        this.address = address;
-        this.id1 = id1;
-        this.id2 = id2;
-        this.id3 = id3;
-        this.rssi = rssi;
-        this.timestamp = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss.SSS",
-                Locale.getDefault()).format(new Date());
-        this.distance = distance;
-    }
-    
-    private String address;
-    private String id1;
-    private String id2;
-    private String id3;
-    private int rssi;
-    private long telemetryVersion;
-    private long batteryMilliVolts;
-    private long pduCount;
-    private long uptime;
-    private String timestamp;
-    private double distance;
-    private final static String TYPE = "BLE";
 
     public String getAddress() {
         return address;
@@ -138,5 +132,12 @@ public class BeaconItem {
     public void setDistance(double distance) {
         this.distance = distance;
     }
-}
 
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+}

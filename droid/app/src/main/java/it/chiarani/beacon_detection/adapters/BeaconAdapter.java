@@ -11,13 +11,13 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.List;
 
 import it.chiarani.beacon_detection.R;
-import it.chiarani.beacon_detection.models.BeaconItem;
+import it.chiarani.beacon_detection.models.BeaconDevice;
 
 public class BeaconAdapter  extends RecyclerView.Adapter<BeaconAdapter.ViewHolder> {
 
-    private List<BeaconItem> mItems;
+    private List<BeaconDevice> mItems;
 
-    public BeaconAdapter(List<BeaconItem> items) {
+    public BeaconAdapter(List<BeaconDevice> items) {
         this.mItems = items;
     }
 

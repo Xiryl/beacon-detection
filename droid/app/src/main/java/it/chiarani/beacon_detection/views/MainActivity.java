@@ -1,15 +1,9 @@
 package it.chiarani.beacon_detection.views;
 
 import android.Manifest;
-import android.annotation.TargetApi;
-import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.RemoteException;
-import android.util.Log;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
@@ -18,21 +12,17 @@ import androidx.databinding.DataBindingUtil;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import org.altbeacon.beacon.Beacon;
-import org.altbeacon.beacon.BeaconConsumer;
 import org.altbeacon.beacon.BeaconManager;
-import org.altbeacon.beacon.BeaconParser;
-import org.altbeacon.beacon.RangeNotifier;
 import org.altbeacon.beacon.Region;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 import it.chiarani.beacon_detection.R;
 import it.chiarani.beacon_detection.adapters.BeaconAdapter;
 import it.chiarani.beacon_detection.databinding.ActivityMainBinding;
-import it.chiarani.beacon_detection.models.BeaconItem;
+import it.chiarani.beacon_detection.db.DataSource;
+import it.chiarani.beacon_detection.models.BeaconDevice;
 import it.chiarani.beacon_detection.services.ServiceBeaconDiscovery;
 
 public class MainActivity extends AppCompatActivity {
@@ -42,7 +32,7 @@ public class MainActivity extends AppCompatActivity {
 
     private BeaconManager mBeaconManager;
     private Region beaconRegion;
-    private List<BeaconItem> beaconList = new ArrayList<>();
+    private List<BeaconDevice> beaconList = new ArrayList<>();
     BeaconAdapter adapterTags;
     Intent beaconDiscoveryService;
 
@@ -85,6 +75,7 @@ public class MainActivity extends AppCompatActivity {
         beaconDiscoveryService = new Intent(this, ServiceBeaconDiscovery.class);
         beaconDiscoveryService.setAction(ServiceBeaconDiscovery.ACTIONS.START.toString());
         startService(beaconDiscoveryService);
+
     }
 
    /*@Override
@@ -139,7 +130,7 @@ public class MainActivity extends AppCompatActivity {
 
             if(beaconList.size() == 0) {
                 // add beacon without tlm
-                beaconList.add(new BeaconItem(actualBeacon.getBluetoothAddress(), id1, id2, id3, actualBeacon.getRssi(), actualBeacon.getDistance()));
+                beaconList.add(new BeaconDevice(actualBeacon.getBluetoothAddress(), id1, id2, id3, actualBeacon.getRssi(), actualBeacon.getDistance()));
                 adapterTags.notifyDataSetChanged();
                 binding.activityMainTxtScan.setText("Found "+beaconList.size() + " beacons" );
             }
@@ -149,14 +140,14 @@ public class MainActivity extends AppCompatActivity {
                 long unsignedTemp = (actualBeacon.getExtraDataFields().get(2) >> 8);
                 double temperature = unsignedTemp > 128 ? unsignedTemp - 256 : unsignedTemp + (actualBeacon.getExtraDataFields().get(2) & 0xff) / 256.0;
 
-                beaconList.add(new BeaconItem(actualBeacon.getBluetoothAddress(), id1, id2, id3, actualBeacon.getRssi(), actualBeacon.getExtraDataFields().get(0),
+                beaconList.add(new BeaconDevice(actualBeacon.getBluetoothAddress(), id1, id2, id3, actualBeacon.getRssi(), actualBeacon.getExtraDataFields().get(0),
                         actualBeacon.getExtraDataFields().get(1), actualBeacon.getExtraDataFields().get(3), actualBeacon.getExtraDataFields().get(4)));
             }*/    /*
             else {
 
-                for (BeaconItem item : beaconList) {
+                for (BeaconDevice item : beaconList) {
                     if(!item.getAddress().equals(actualBeacon.getBluetoothAddress())) {
-                            beaconList.add(new BeaconItem(actualBeacon.getBluetoothAddress(), id1, id2, id3, actualBeacon.getRssi(), actualBeacon.getDistance()));
+                            beaconList.add(new BeaconDevice(actualBeacon.getBluetoothAddress(), id1, id2, id3, actualBeacon.getRssi(), actualBeacon.getDistance()));
                         adapterTags.notifyDataSetChanged();
                         binding.activityMainTxtScan.setText("Found "+beaconList.size() + " beacons" );
                     }
