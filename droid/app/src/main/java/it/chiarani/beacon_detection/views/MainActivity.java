@@ -11,6 +11,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
@@ -21,6 +22,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
 
 import io.reactivex.Completable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -130,6 +132,16 @@ public class MainActivity extends AppCompatActivity {
         adapterTags = new BeaconAdapter(beaconList);
         binding.activityMainRvReadings.setAdapter(adapterTags);
 
+
+
+    }
+
+    private void stopDiscoveryService() {
+        Intent beaconService = new Intent(this, BeaconDiscoverService.class);
+        beaconService.setAction(BeaconDiscoverService.ACTIONS.STOP.toString());
+        startService(beaconService);
+        stopService(beaconService);
+
     }
 
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -148,35 +160,6 @@ public class MainActivity extends AppCompatActivity {
             BottomNavigationDrawerFragment bottomSheetDialogFragment = new BottomNavigationDrawerFragment();
             bottomSheetDialogFragment.show(getSupportFragmentManager(), "bottom_nav_sheet_dialog");
         });
-    }
-
-    private void startSettingsDialog() {
-        AlertDialog.Builder alert = new AlertDialog.Builder(this);
-        final EditText edittext = new EditText(this);
-        alert.setMessage("Number in ms (100-10000) - Actual:" + ScannerController.getScanPeriod() + "ms");
-        alert.setTitle("Set the scan frequency");
-
-        alert.setView(edittext);
-
-        alert.setPositiveButton("Set", new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int whichButton) {
-                //What ever you want to do with the value
-          //      Editable YouEditTextValue = edittext.getText();
-                ScannerController.setScanPeriod(Long.parseLong(edittext.getText().toString()));
-             //   //OR
-              //  String YouEditTextValue = edittext.getText().toString();
-            }
-        });
-
-        alert.setNegativeButton("Back", new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int whichButton) {
-                // what ever you want to do with No option.
-            }
-        });
-
-        alert.show();
-      /*
-        */
     }
 
     private void startCollectDialog() {
@@ -217,9 +200,10 @@ public class MainActivity extends AppCompatActivity {
         binding.activityMainTxtScanTimer.setVisibility(View.VISIBLE);
         binding.activityMainBtnCollectData.setVisibility(View.INVISIBLE);
         binding.activityMainTxtNextOptions.setVisibility(View.INVISIBLE);
+     //   binding.activityMainBtnStopSearch.setVisibility(View.VISIBLE);
         mMenu.findItem(R.id.bottomappbar_menu_search).setEnabled(false);
         binding.fab.setEnabled(false);
-        new CountDownTimer(30000, 1000) {
+        new CountDownTimer(ScannerController.getScanTime(), 1000) {
             public void onTick(long millisUntilFinished) {
                 binding.activityMainTxtScanTimer.setText("Scanning.. seconds remaining: " + millisUntilFinished / 1000);
             }
@@ -230,13 +214,16 @@ public class MainActivity extends AppCompatActivity {
                 binding.activityMainTxtScanTimer.setVisibility(View.INVISIBLE);
                 binding.activityMainBtnCollectData.setVisibility(View.VISIBLE);
                 binding.activityMainTxtNextOptions.setVisibility(View.VISIBLE);
+             //   binding.activityMainBtnStopSearch.setVisibility(View.INVISIBLE);
                 stopService(beaconDiscoveryService);
+                Toast.makeText(getApplicationContext(), "Beacon discovery service STOPPED.", Toast.LENGTH_SHORT).show();
             }
         }.start();
 
         beaconDiscoveryService = new Intent(this, BeaconDiscoverService.class);
         beaconDiscoveryService.setAction(BeaconDiscoverService.ACTIONS.START.toString());
         startService(beaconDiscoveryService);
+        Toast.makeText(getApplicationContext(), "Beacon discovery service STARTED.", Toast.LENGTH_SHORT).show();
 
     }
 
@@ -362,6 +349,10 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         Completable.fromAction(appDatabase.beaconDeviceDao()::clear)
+                .subscribeOn(Schedulers.io())
+                .subscribe();
+
+        Completable.fromAction(appDatabase.beaconDataDao()::clear)
                 .subscribeOn(Schedulers.io())
                 .subscribe();
 

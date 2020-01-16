@@ -105,7 +105,7 @@ public class BeaconDiscoverService extends Service implements BeaconConsumer, Ra
         mBeaconManager.getBeaconParsers().add(new BeaconParser().
                 setBeaconLayout(BeaconParser.EDDYSTONE_TLM_LAYOUT));
 
-        mBeaconManager.setForegroundScanPeriod(ScannerController.getScanPeriod());
+        mBeaconManager.setForegroundScanPeriod(ScannerController.getScanFrequencyPeriod());
         mBeaconManager.setForegroundBetweenScanPeriod(ScannerController.getBetweenScanPeriod());
 
     }

@@ -7,21 +7,20 @@
 
         <EditTextPreference
             android:key="pref_key_discovery_time"
-            android:defaultValue="110"
-            android:summary="Default is 30s"
-            android:title="Set discovery time" />
+            android:title="Set discovery time"
+            android:summary="Time for discovery (default 30000ms)" />
 
         <EditTextPreference
             android:key="pref_key_discovery_frequency"
-            android:defaultValue="110"
-            android:summary="Default is 1024ms"
-            android:title="Set discovery frequency" />
+            android:title="Set discovery frequency"
+            android:summary="Frequency time for discovery on beacon service (default 1024ms)"/>
 
     </PreferenceCategory>
 
     <PreferenceCategory android:title="Data Collecting">
 
         <EditTextPreference
+            android:enabled="false"
             android:key="pref_key_data_frequency"
             android:defaultValue="110"
             android:summary="Default is 1024ms"
@@ -32,12 +31,21 @@
     <PreferenceCategory android:title="Data">
         <Preference
             android:key="pref_key_backupManual"
+
+            android:enabled="false"
             android:title="Export data as CSV"/>
 
     </PreferenceCategory>
 
     <PreferenceCategory android:title="General">
         <Preference
+            android:enabled="false"
+            android:key="pref_key_clear_data"
+            android:title="Clear All"
+            android:summary="Clear all data of this app"/>
+        <Preference
+
+            android:enabled="false"
             android:key="pref_key_bugReport"
             android:title="Report bug"
             android:summary="fabio@chiarani.it"/>

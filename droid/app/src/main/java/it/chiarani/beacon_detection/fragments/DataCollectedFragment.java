@@ -6,8 +6,10 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import androidx.databinding.DataBindingUtil;
+import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -16,6 +18,7 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import org.altbeacon.beacon.Beacon;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -39,15 +42,12 @@ public class DataCollectedFragment extends BottomSheetDialogFragment {
     FragmentDataCollectedBinding binding;
     private List<BeaconData> beaconList = new ArrayList<>();
     BeaconDataAdapter adapterTags;
+    private ArrayList<String> filterAddr = new ArrayList<>();
 
     private OnFragmentInteractionListener mListener;
 
-    public DataCollectedFragment() {
-        // Required empty public constructor
-    }
-    public static DataCollectedFragment newInstance(String param1, String param2) {
-        DataCollectedFragment fragment = new DataCollectedFragment();
-        return fragment;
+    public DataCollectedFragment(List<String> filterAddr) {
+        this.filterAddr.addAll(filterAddr);
     }
 
     @Override
@@ -64,8 +64,10 @@ public class DataCollectedFragment extends BottomSheetDialogFragment {
         View view = binding.getRoot();
 
         Intent beaconDiscoveryService = new Intent(getActivity(), BeaconDataCollectorService.class);
+        beaconDiscoveryService.putStringArrayListExtra("AVAILABLEADRESSES", this.filterAddr);
         beaconDiscoveryService.setAction(BeaconDiscoverService.ACTIONS.START.toString());
         getActivity().startService(beaconDiscoveryService);
+        Toast.makeText(getActivity().getApplicationContext(), "Data collection service STARTED.", Toast.LENGTH_SHORT).show();
 
 
         AppDatabase appDatabase = ((BeaconDetectionApp)getActivity().getApplication()).getRepository().getDatabase();
@@ -79,6 +81,7 @@ public class DataCollectedFragment extends BottomSheetDialogFragment {
                     }
                     beaconList.clear();
                     beaconList.addAll(entities);
+                    Collections.reverse(beaconList);
                     adapterTags.notifyDataSetChanged();
                 }, throwable -> {
                     // Toast.makeText(this, getString(R.string.txtGenericError), Toast.LENGTH_LONG).show();
@@ -88,11 +91,12 @@ public class DataCollectedFragment extends BottomSheetDialogFragment {
         LinearLayoutManager linearLayoutManagerTags = new LinearLayoutManager(getActivity());
         linearLayoutManagerTags.setOrientation(RecyclerView.VERTICAL);
 
+        binding.fragmentDataCollectedRv.addItemDecoration(new DividerItemDecoration(binding.fragmentDataCollectedRv.getContext(), DividerItemDecoration.VERTICAL));
         binding.fragmentDataCollectedRv.setLayoutManager(linearLayoutManagerTags);
 
         adapterTags = new BeaconDataAdapter(beaconList);
         binding.fragmentDataCollectedRv.setAdapter(adapterTags);
-
+        binding.fragmentDataCollectedTitle.setText("Real time data from "+this.filterAddr.size()+" device(s).");
         return view;
 
     }
@@ -102,6 +106,10 @@ public class DataCollectedFragment extends BottomSheetDialogFragment {
     public void onDetach() {
         super.onDetach();
         mListener = null;
+        Toast.makeText(getActivity().getApplicationContext(), "Data collection service STOPPED.", Toast.LENGTH_SHORT).show();
+        Intent beaconDiscoveryService = new Intent(getActivity(), BeaconDataCollectorService.class);
+        beaconDiscoveryService.setAction(BeaconDiscoverService.ACTIONS.STOP.toString());
+        getActivity().stopService(beaconDiscoveryService);
     }
 
     public interface OnFragmentInteractionListener {

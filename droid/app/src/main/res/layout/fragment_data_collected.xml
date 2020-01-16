@@ -5,8 +5,8 @@
     <data></data>
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="300dp">
-
+        android:layout_height="400dp"
+        android:minHeight="400dp">
 
         <TextView
             android:id="@+id/fragment_data_collected_title"
@@ -23,6 +23,7 @@
             app:layout_constraintTop_toTopOf="parent" />
 
         <androidx.recyclerview.widget.RecyclerView
+            android:maxHeight="300dp"
             android:id="@+id/fragment_data_collected_rv"
             android:layout_width="match_parent"
             android:layout_height="0dp"

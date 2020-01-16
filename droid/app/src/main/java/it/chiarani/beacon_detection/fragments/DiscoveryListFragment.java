@@ -24,16 +24,18 @@ import it.chiarani.beacon_detection.BeaconDetectionApp;
 import it.chiarani.beacon_detection.R;
 import it.chiarani.beacon_detection.adapters.BeaconAdapter;
 import it.chiarani.beacon_detection.adapters.BeaconDiscoveryAdapter;
+import it.chiarani.beacon_detection.adapters.ItemClickListener;
 import it.chiarani.beacon_detection.databinding.FragmentDiscoveryListBinding;
 import it.chiarani.beacon_detection.db.AppDatabase;
 import it.chiarani.beacon_detection.models.BeaconDevice;
 
 
-public class DiscoveryListFragment extends BottomSheetDialogFragment {
+public class DiscoveryListFragment extends BottomSheetDialogFragment implements ItemClickListener {
 
     FragmentDiscoveryListBinding binding;
     private List<BeaconDevice> beaconList = new ArrayList<>();
     BeaconDiscoveryAdapter adapterTags;
+    private List<String> filterAddr = new ArrayList<>();
 
     private OnFragmentInteractionListener mListener;
 
@@ -81,7 +83,7 @@ public class DiscoveryListFragment extends BottomSheetDialogFragment {
 
         binding.fragmentDiscoveryListRv.setLayoutManager(linearLayoutManagerTags);
 
-        adapterTags = new BeaconDiscoveryAdapter(beaconList);
+        adapterTags = new BeaconDiscoveryAdapter(beaconList, this::onItemClick);
         binding.fragmentDiscoveryListRv.setAdapter(adapterTags);
 
         binding.fragmentDiscoveryBtnCollectData.setOnClickListener( v -> startCollectingFragment());
@@ -91,8 +93,7 @@ public class DiscoveryListFragment extends BottomSheetDialogFragment {
     }
 
     private void startCollectingFragment() {
-
-        DataCollectedFragment bottomSheetDialogFragment = new DataCollectedFragment();
+        DataCollectedFragment bottomSheetDialogFragment = new DataCollectedFragment(filterAddr);
         bottomSheetDialogFragment.show(getActivity().getSupportFragmentManager(), "bottom_nav_sheet_dialog_1");
         this.dismiss();
     }
@@ -102,6 +103,15 @@ public class DiscoveryListFragment extends BottomSheetDialogFragment {
     public void onDetach() {
         super.onDetach();
         mListener = null;
+    }
+
+    @Override
+    public void onItemClick(int position) {
+        if(filterAddr.contains(beaconList.get(position).getAddress())) {
+            this.filterAddr.remove(beaconList.get(position).getAddress());
+        } else {
+            this.filterAddr.add(beaconList.get(position).getAddress());
+        }
     }
 
     public interface OnFragmentInteractionListener {

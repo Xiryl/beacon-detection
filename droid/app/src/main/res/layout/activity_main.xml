@@ -56,8 +56,25 @@
         app:cornerRadius="50dp"
         app:icon="@drawable/ic_gear"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />-->
+        app:layout_constraintTop_toTopOf="parent" />
 
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/activity_main_btn_stop_search"
+        android:layout_width="wrap_content"
+        android:visibility="invisible"
+        android:layout_marginEnd="16dp"
+        android:layout_height="wrap_content"
+        app:strokeWidth="2dp"
+        android:layout_marginTop="16dp"
+        android:theme="@style/Theme.MaterialComponents"
+        android:backgroundTint="@android:color/transparent"
+        app:rippleColor="@color/colorRed"
+        android:padding="10dp"
+        app:strokeColor="@color/colorRed"
+        app:cornerRadius="50dp"
+        android:text="Stop"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />-->
 
     <TextView
         android:id="@+id/activity_main_txt_scan_timer"

@@ -16,14 +16,16 @@ import org.altbeacon.beacon.BeaconParser;
 import org.altbeacon.beacon.RangeNotifier;
 import org.altbeacon.beacon.Region;
 
+import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import it.chiarani.beacon_detection.AppExecutors;
 import it.chiarani.beacon_detection.BeaconDetectionApp;
 import it.chiarani.beacon_detection.controllers.ScannerController;
 import it.chiarani.beacon_detection.db.AppDatabase;
 import it.chiarani.beacon_detection.db.entities.BeaconDataEntity;
-import it.chiarani.beacon_detection.db.entities.BeaconDeviceEntity;
 
 public class BeaconDataCollectorService extends Service implements BeaconConsumer, RangeNotifier {
 
@@ -41,12 +43,15 @@ public class BeaconDataCollectorService extends Service implements BeaconConsume
         STOP
     }
 
+    public List<String> availableAddresses = new ArrayList<>();
+
     /**
      * Fa partire il service. Bisogna chiamare stopSelf() oppure stopService() per farlo terminare
      */
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         ACTIONS action = ACTIONS.valueOf(intent.getAction());
+        availableAddresses = intent.getStringArrayListExtra("AVAILABLEADRESSES");
 
         Log.d(BeaconDataCollectorService.class.getSimpleName(),"Received action:"+ action);
 
@@ -106,7 +111,7 @@ public class BeaconDataCollectorService extends Service implements BeaconConsume
         mBeaconManager.getBeaconParsers().add(new BeaconParser().
                 setBeaconLayout(BeaconParser.EDDYSTONE_TLM_LAYOUT));
 
-        mBeaconManager.setForegroundScanPeriod(ScannerController.getScanPeriod());
+        mBeaconManager.setForegroundScanPeriod(ScannerController.getScanFrequencyPeriod());
         mBeaconManager.setForegroundBetweenScanPeriod(ScannerController.getBetweenScanPeriod());
 
     }
@@ -148,6 +153,11 @@ public class BeaconDataCollectorService extends Service implements BeaconConsume
         Log.i(BeaconDataCollectorService.class.getSimpleName(), String.format("Found %s beacons in range", beacons.size()));
         if (beacons.size() > 0) {
             Beacon actualBeacon = beacons.iterator().next();
+
+            if(!availableAddresses.contains(actualBeacon.getBluetoothAddress())) {
+                return;
+            }
+
             String id1 = "null";
             try {
                 id1 = actualBeacon.getId1().toString();

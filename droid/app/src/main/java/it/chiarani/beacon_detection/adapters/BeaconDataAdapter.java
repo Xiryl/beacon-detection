@@ -31,12 +31,10 @@ public class BeaconDataAdapter extends RecyclerView.Adapter<BeaconDataAdapter.Vi
 
     public class ViewHolder extends RecyclerView.ViewHolder {
 
-        TextView txtInfo;
         TextView txtName;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
-            txtInfo = itemView.findViewById(R.id.item_Data_collected_info);
             txtName = itemView.findViewById(R.id.item_Data_collected_address);
         }
     }
@@ -44,8 +42,7 @@ public class BeaconDataAdapter extends RecyclerView.Adapter<BeaconDataAdapter.Vi
 
     @Override
     public void onBindViewHolder(@NonNull BeaconDataAdapter.ViewHolder holder, int position) {
-        holder.txtName.setText(mItems.get(position).getAddress());
-        holder.txtInfo.setText("RSSI:" + mItems.get(position).getRssi());
+        holder.txtName.setText("MAC: " + mItems.get(position).getAddress() + ", RSSI:" + mItems.get(position).getRssi() + " (" + mItems.get(position).getTimestamp() + ")");
     }
 
 

@@ -11,7 +11,7 @@
         android:layout_marginEnd="16dp">
 
         <androidx.appcompat.widget.AppCompatCheckBox
-            android:id="@+id/item_beacon_ic"
+            android:id="@+id/item_discovery_beacon_chbox"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="4dp"
@@ -32,7 +32,7 @@
             android:textColor="#323536"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toEndOf="@+id/item_beacon_ic"
+            app:layout_constraintStart_toEndOf="@+id/item_discovery_beacon_chbox"
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
@@ -40,14 +40,14 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="6dp"
             android:layout_marginEnd="2dp"
             android:fontFamily="@font/os_light"
             android:text="Beacon1"
             android:textColor="#323536"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toEndOf="@+id/item_beacon_ic"
+            app:layout_constraintStart_toEndOf="@+id/item_discovery_beacon_chbox"
             app:layout_constraintTop_toBottomOf="@+id/item_discovery_beacon_address" />
 
 

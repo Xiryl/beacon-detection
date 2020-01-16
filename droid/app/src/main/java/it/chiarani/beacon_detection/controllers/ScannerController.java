@@ -1,18 +1,19 @@
 package it.chiarani.beacon_detection.controllers;
 
 public final class ScannerController {
-    private static long scanPeriod = 1000;
+    private static long scanFrequencyPeriod = 1000;
     private static long betweenScanPeriod = 0;
+    private static long scanTime = 30000;
 
     public ScannerController() {
     }
 
-    public static long getScanPeriod() {
-        return scanPeriod;
+    public static long getScanFrequencyPeriod() {
+        return scanFrequencyPeriod;
     }
 
-    public static void setScanPeriod(long scanPeriod) {
-        ScannerController.scanPeriod = scanPeriod;
+    public static void setScanFrequencyPeriod(long scanFrequencyPeriod) {
+        ScannerController.scanFrequencyPeriod = scanFrequencyPeriod;
     }
 
     public static long getBetweenScanPeriod() {
@@ -21,5 +22,13 @@ public final class ScannerController {
 
     public static void setBetweenScanPeriod(long betweenScanPeriod) {
         ScannerController.betweenScanPeriod = betweenScanPeriod;
+    }
+
+    public static long getScanTime() {
+        return scanTime;
+    }
+
+    public static void setScanTime(long scanTime) {
+        ScannerController.scanTime = scanTime;
     }
 }

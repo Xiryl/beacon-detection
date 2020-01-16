@@ -33,11 +33,15 @@ public class BeaconAdapter  extends RecyclerView.Adapter<BeaconAdapter.ViewHolde
 
         TextView txtInfo;
         TextView txtName;
+        TextView major;
+        TextView minor;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             txtInfo = itemView.findViewById(R.id.item_beacon_info);
             txtName = itemView.findViewById(R.id.item_beacon_name);
+            major = itemView.findViewById(R.id.item_beacon_major);
+            minor = itemView.findViewById(R.id.item_beacon_minor);
         }
     }
 
@@ -45,7 +49,9 @@ public class BeaconAdapter  extends RecyclerView.Adapter<BeaconAdapter.ViewHolde
     @Override
     public void onBindViewHolder(@NonNull BeaconAdapter.ViewHolder holder, int position) {
         holder.txtName.setText(mItems.get(position).getAddress());
-        holder.txtInfo.setText(mItems.get(position).getRssi()+" Distance ~" + String.format("%.2f", mItems.get(position).getDistance())   + "mt");
+        holder.txtInfo.setText("RSSI: " +mItems.get(position).getRssi()+", Distance: ~" + String.format("%.2f", mItems.get(position).getDistance())   + "mt");
+        holder.minor.setText(mItems.get(position).getType() + "");
+        holder.major.setText(mItems.get(position).getId2() + "");
     }
 
 
