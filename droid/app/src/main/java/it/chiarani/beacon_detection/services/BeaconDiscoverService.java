@@ -24,7 +24,7 @@ import it.chiarani.beacon_detection.controllers.ScannerController;
 import it.chiarani.beacon_detection.db.AppDatabase;
 import it.chiarani.beacon_detection.db.entities.BeaconDeviceEntity;
 
-public class ServiceBeaconDiscovery extends Service implements BeaconConsumer, RangeNotifier {
+public class BeaconDiscoverService extends Service implements BeaconConsumer, RangeNotifier {
 
 
     private BeaconManager mBeaconManager;
@@ -47,16 +47,16 @@ public class ServiceBeaconDiscovery extends Service implements BeaconConsumer, R
     public int onStartCommand(Intent intent, int flags, int startId) {
         ACTIONS action = ACTIONS.valueOf(intent.getAction());
 
-        Log.d(ServiceBeaconDiscovery.class.getSimpleName(),"Received action:"+ action);
+        Log.d(BeaconDiscoverService.class.getSimpleName(),"Received action:"+ action);
 
         if (action == ACTIONS.START) {
-            Log.d(ServiceBeaconDiscovery.class.getSimpleName(), "Start discovery");
+            Log.d(BeaconDiscoverService.class.getSimpleName(), "Start discovery");
 
             // L'avvio del monitoraggio viene demandato ad un'altra funzione, per chiarità
             startDiscovery();
         }
         else if (action == ACTIONS.STOP) {
-            Log.d(ServiceBeaconDiscovery.class.getSimpleName(), "Stop discovery");
+            Log.d(BeaconDiscoverService.class.getSimpleName(), "Stop discovery");
 
             stopDiscovery();
 
@@ -78,7 +78,7 @@ public class ServiceBeaconDiscovery extends Service implements BeaconConsumer, R
         try {
             mBeaconManager.stopRangingBeaconsInRegion(beaconRegion);
         } catch (RemoteException e) {
-            Log.e(ServiceBeaconDiscovery.class.getSimpleName(), e.getMessage());
+            Log.e(BeaconDiscoverService.class.getSimpleName(), e.getMessage());
             e.printStackTrace();
         }
     }
@@ -89,7 +89,7 @@ public class ServiceBeaconDiscovery extends Service implements BeaconConsumer, R
     @Override
     public void onCreate() {
         super.onCreate();
-        Log.d("I ", "ServiceBeaconDiscovery Started");
+        Log.d("I ", "BeaconDiscoverService Started");
 
         mAppExecutors = ((BeaconDetectionApp)getApplication()).getRepository().getAppExecutors();
         mAppDatabase = ((BeaconDetectionApp)getApplication()).getRepository().getDatabase();
@@ -104,6 +104,7 @@ public class ServiceBeaconDiscovery extends Service implements BeaconConsumer, R
 
         mBeaconManager.getBeaconParsers().add(new BeaconParser().
                 setBeaconLayout(BeaconParser.EDDYSTONE_TLM_LAYOUT));
+
         mBeaconManager.setForegroundScanPeriod(ScannerController.getScanPeriod());
         mBeaconManager.setForegroundBetweenScanPeriod(ScannerController.getBetweenScanPeriod());
 
@@ -136,14 +137,14 @@ public class ServiceBeaconDiscovery extends Service implements BeaconConsumer, R
         try {
             mBeaconManager.startRangingBeaconsInRegion(beaconRegion);
         } catch (RemoteException e) {
-            Log.e(ServiceBeaconDiscovery.class.getSimpleName(), e.getMessage());
+            Log.e(BeaconDiscoverService.class.getSimpleName(), e.getMessage());
             e.printStackTrace();
         }
     }
 
     @Override
     public void didRangeBeaconsInRegion(Collection<Beacon> beacons, Region region) {
-        Log.i(ServiceBeaconDiscovery.class.getSimpleName(), String.format("Found %s beacons in range", beacons.size()));
+        Log.i(BeaconDiscoverService.class.getSimpleName(), String.format("Found %s beacons in range", beacons.size()));
         if (beacons.size() > 0) {
             Beacon actualBeacon = beacons.iterator().next();
             String id1 = "null";
@@ -174,7 +175,7 @@ public class ServiceBeaconDiscovery extends Service implements BeaconConsumer, R
             // add beacon without tlm
 
             mAppExecutors.diskIO().execute(() -> mAppDatabase.beaconDeviceDao().insert(tmp));
-            Log.i(ServiceBeaconDiscovery.class.getSimpleName(), "The first beacon I see is about "+beacons.iterator().next().getDistance()+" meters away. And RSSI:" + beacons.iterator().next().getRssi() + "---" + beacons.iterator().next().getBluetoothName());
+            Log.i(BeaconDiscoverService.class.getSimpleName(), "The first beacon I see is about "+beacons.iterator().next().getDistance()+" meters away. And RSSI:" + beacons.iterator().next().getRssi() + "---" + beacons.iterator().next().getBluetoothName());
         }
      }
 

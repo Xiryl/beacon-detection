@@ -7,13 +7,10 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.CountDownTimer;
-import android.text.Editable;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
@@ -22,12 +19,8 @@ import androidx.databinding.DataBindingUtil;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import org.altbeacon.beacon.BeaconManager;
-import org.altbeacon.beacon.Region;
-
 import java.util.ArrayList;
 import java.util.List;
-import java.util.zip.Inflater;
 
 import io.reactivex.Completable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -37,14 +30,14 @@ import it.chiarani.beacon_detection.AppExecutors;
 import it.chiarani.beacon_detection.BeaconDetectionApp;
 import it.chiarani.beacon_detection.R;
 import it.chiarani.beacon_detection.adapters.BeaconAdapter;
+import it.chiarani.beacon_detection.adapters.BeaconDiscoveryAdapter;
 import it.chiarani.beacon_detection.controllers.ScannerController;
 import it.chiarani.beacon_detection.databinding.ActivityMainBinding;
-import it.chiarani.beacon_detection.databinding.FragmentDiscoveryListBinding;
 import it.chiarani.beacon_detection.db.AppDatabase;
 import it.chiarani.beacon_detection.fragments.BottomNavigationDrawerFragment;
 import it.chiarani.beacon_detection.fragments.DiscoveryListFragment;
 import it.chiarani.beacon_detection.models.BeaconDevice;
-import it.chiarani.beacon_detection.services.ServiceBeaconDiscovery;
+import it.chiarani.beacon_detection.services.BeaconDiscoverService;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -117,6 +110,7 @@ public class MainActivity extends AppCompatActivity {
                     beaconList.clear();
                     beaconList.addAll(entities);
                     adapterTags.notifyDataSetChanged();
+
                 }, throwable -> {
                     // Toast.makeText(this, getString(R.string.txtGenericError), Toast.LENGTH_LONG).show();
                 }));
@@ -210,6 +204,10 @@ public class MainActivity extends AppCompatActivity {
 
             alert.show();
         } else {
+            Intent beaconService = new Intent(this, BeaconDiscoverService.class);
+            beaconService.setAction(BeaconDiscoverService.ACTIONS.STOP.toString());
+            startService(beaconService);
+
             DiscoveryListFragment bottomSheetDialogFragment = new DiscoveryListFragment();
             bottomSheetDialogFragment.show(getSupportFragmentManager(), "bottom_nav_sheet_dialog");
         }
@@ -217,6 +215,8 @@ public class MainActivity extends AppCompatActivity {
 
     private void startBeaconDiscoveryService() {
         binding.activityMainTxtScanTimer.setVisibility(View.VISIBLE);
+        binding.activityMainBtnCollectData.setVisibility(View.INVISIBLE);
+        binding.activityMainTxtNextOptions.setVisibility(View.INVISIBLE);
         mMenu.findItem(R.id.bottomappbar_menu_search).setEnabled(false);
         binding.fab.setEnabled(false);
         new CountDownTimer(30000, 1000) {
@@ -234,8 +234,8 @@ public class MainActivity extends AppCompatActivity {
             }
         }.start();
 
-        beaconDiscoveryService = new Intent(this, ServiceBeaconDiscovery.class);
-        beaconDiscoveryService.setAction(ServiceBeaconDiscovery.ACTIONS.START.toString());
+        beaconDiscoveryService = new Intent(this, BeaconDiscoverService.class);
+        beaconDiscoveryService.setAction(BeaconDiscoverService.ACTIONS.START.toString());
         startService(beaconDiscoveryService);
 
     }

@@ -62,4 +62,7 @@ dependencies {
     // GSON for Converter for ROOM
     implementation 'com.google.code.gson:gson:2.8.5'
 
+    // Preferences android x
+    implementation 'androidx.preference:preference:1.1.0'
+
 }

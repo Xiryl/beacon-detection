@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen
+    android:layout_height="match_parent"
+    android:layout_width="match_parent"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceCategory android:title="Discovery">
+
+        <EditTextPreference
+            android:key="pref_key_discovery_time"
+            android:defaultValue="110"
+            android:summary="Default is 30s"
+            android:title="Set discovery time" />
+
+        <EditTextPreference
+            android:key="pref_key_discovery_frequency"
+            android:defaultValue="110"
+            android:summary="Default is 1024ms"
+            android:title="Set discovery frequency" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="Data Collecting">
+
+        <EditTextPreference
+            android:key="pref_key_data_frequency"
+            android:defaultValue="110"
+            android:summary="Default is 1024ms"
+            android:title="Set data collecting frequency" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="Data">
+        <Preference
+            android:key="pref_key_backupManual"
+            android:title="Export data as CSV"/>
+
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="General">
+        <Preference
+            android:key="pref_key_bugReport"
+            android:title="Report bug"
+            android:summary="fabio@chiarani.it"/>
+    </PreferenceCategory>
+
+
+</PreferenceScreen>

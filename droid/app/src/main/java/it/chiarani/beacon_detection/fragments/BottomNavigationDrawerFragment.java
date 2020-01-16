@@ -1,5 +1,6 @@
 package it.chiarani.beacon_detection.fragments;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,6 +13,7 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.google.android.material.navigation.NavigationView;
 
 import it.chiarani.beacon_detection.R;
+import it.chiarani.beacon_detection.views.SettingsActivity;
 
 public class BottomNavigationDrawerFragment extends BottomSheetDialogFragment {
 
@@ -28,6 +30,11 @@ public class BottomNavigationDrawerFragment extends BottomSheetDialogFragment {
         nv.setNavigationItemSelectedListener( v-> {
             switch (v.getItemId()) {
                 case R.id.bottom_nav_drawer_menu_collect_data: return  true;
+                case R.id.bottom_nav_drawer_menu_settings: {
+                    Intent intent = new Intent(getActivity().getApplicationContext(), SettingsActivity.class);
+                    startActivity(intent);
+                    this.dismiss();
+                }
                 default: return  true;
         }});
 

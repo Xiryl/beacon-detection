@@ -19,5 +19,19 @@
 
         </androidx.recyclerview.widget.RecyclerView>
 
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/fragment_discovery_btn_collect_data"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="32dp"
+            android:padding="10dp"
+            android:text="Start collecting data"
+            app:cornerRadius="50dp"
+            app:icon="@drawable/ic_filter"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/fragment_discovery_list_rv" />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

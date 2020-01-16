@@ -8,14 +8,17 @@ import androidx.room.RoomDatabase;
 
 import java.util.concurrent.Executor;
 
+import it.chiarani.beacon_detection.db.dao.BeaconDataDao;
 import it.chiarani.beacon_detection.db.dao.BeaconDeviceDao;
+import it.chiarani.beacon_detection.db.entities.BeaconDataEntity;
 import it.chiarani.beacon_detection.db.entities.BeaconDeviceEntity;
 
-@Database(entities = {BeaconDeviceEntity.class}, version = 1, exportSchema = false)
+@Database(entities = {BeaconDeviceEntity.class, BeaconDataEntity.class}, version = 1, exportSchema = false)
 public abstract class AppDatabase extends RoomDatabase {
     private static volatile AppDatabase INSTANCE;
 
     public abstract BeaconDeviceDao beaconDeviceDao();
+    public abstract BeaconDataDao beaconDataDao();
 
     public static AppDatabase getInstance(Context context) {
         if (INSTANCE == null) {

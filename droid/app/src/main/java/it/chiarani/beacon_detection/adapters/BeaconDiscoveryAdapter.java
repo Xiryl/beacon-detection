@@ -35,8 +35,8 @@ public class BeaconDiscoveryAdapter extends RecyclerView.Adapter<BeaconDiscovery
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
-            txtInfo = itemView.findViewById(R.id.item_discovery_beaco_info);
-            txtName = itemView.findViewById(R.id.item_discovery_beaco_name);
+            txtInfo = itemView.findViewById(R.id.item_discovery_beacon_info);
+            txtName = itemView.findViewById(R.id.item_discovery_beacon_address);
         }
     }
 
