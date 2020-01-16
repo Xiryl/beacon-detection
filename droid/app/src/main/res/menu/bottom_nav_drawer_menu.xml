@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <group android:checkableBehavior="none">
+        <item
+            android:id="@+id/bottom_nav_drawer_menu_discovery"
+            android:icon="@drawable/ic_search"
+            android:title="Start discovery" />
+        <item
+            android:id="@+id/bottom_nav_drawer_menu_collect_data"
+            android:icon="@drawable/ic_filter"
+            android:title="Collect the data" />
+        <item
+            android:id="@+id/bottom_nav_drawer_menu_settings"
+            android:icon="@drawable/ic_gear"
+            android:title="Open settings" />
+    </group>
+</menu>

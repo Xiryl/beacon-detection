@@ -8,6 +8,9 @@ import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.text.Editable;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -24,6 +27,7 @@ import org.altbeacon.beacon.Region;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.zip.Inflater;
 
 import io.reactivex.Completable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -35,7 +39,10 @@ import it.chiarani.beacon_detection.R;
 import it.chiarani.beacon_detection.adapters.BeaconAdapter;
 import it.chiarani.beacon_detection.controllers.ScannerController;
 import it.chiarani.beacon_detection.databinding.ActivityMainBinding;
+import it.chiarani.beacon_detection.databinding.FragmentDiscoveryListBinding;
 import it.chiarani.beacon_detection.db.AppDatabase;
+import it.chiarani.beacon_detection.fragments.BottomNavigationDrawerFragment;
+import it.chiarani.beacon_detection.fragments.DiscoveryListFragment;
 import it.chiarani.beacon_detection.models.BeaconDevice;
 import it.chiarani.beacon_detection.services.ServiceBeaconDiscovery;
 
@@ -44,12 +51,12 @@ public class MainActivity extends AppCompatActivity {
     ActivityMainBinding binding;
     private static final String TAG = "main activity";
     private final CompositeDisposable mDisposable = new CompositeDisposable();
-    private BeaconManager mBeaconManager;
-    private Region beaconRegion;
+    private boolean disableButtonFlag = false;
     private List<BeaconDevice> beaconList = new ArrayList<>();
     BeaconAdapter adapterTags;
     Intent beaconDiscoveryService;
     AppDatabase appDatabase;
+    Menu mMenu;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,6 +66,8 @@ public class MainActivity extends AppCompatActivity {
 
         askForPermissions();
 
+        this.setSupportActionBar(binding.bottomAppBar);
+        setBottomAppBarHamburgerListener();
 
       /*  mBeaconManager = BeaconManager.getInstanceForApplication(this);
 
@@ -113,17 +122,38 @@ public class MainActivity extends AppCompatActivity {
                 }));
 
 
+        binding.activityMainBtnCollectData.setOnClickListener(v -> {
+            startCollectDialog();
+        });
+
         LinearLayoutManager linearLayoutManagerTags = new LinearLayoutManager(this);
         linearLayoutManagerTags.setOrientation(RecyclerView.VERTICAL);
 
         binding.activityMainRvReadings.setLayoutManager(linearLayoutManagerTags);
 
+        binding.fab.setOnClickListener(v -> startCollectDialog() );
+
         adapterTags = new BeaconAdapter(beaconList);
         binding.activityMainRvReadings.setAdapter(adapterTags);
 
-        binding.activityMainBtnSearch.setOnClickListener( v -> startBeaconDiscoveryService());
-        binding.activityMainBtnSettings.setOnClickListener( v -> startSettingsDialog());
+    }
 
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.bottomappbar_menu_search: {
+                startBeaconDiscoveryService();
+                mMenu.findItem(R.id.bottomappbar_menu_search).setEnabled(false);
+            }
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void setBottomAppBarHamburgerListener() {
+        binding.bottomAppBar.setNavigationOnClickListener(view -> {
+            BottomNavigationDrawerFragment bottomSheetDialogFragment = new BottomNavigationDrawerFragment();
+            bottomSheetDialogFragment.show(getSupportFragmentManager(), "bottom_nav_sheet_dialog");
+        });
     }
 
     private void startSettingsDialog() {
@@ -151,19 +181,55 @@ public class MainActivity extends AppCompatActivity {
         });
 
         alert.show();
+      /*
+        */
+    }
+
+    private void startCollectDialog() {
+        if(this.beaconList.size() == 0) {
+            AlertDialog.Builder alert = new AlertDialog.Builder(this);
+            final EditText edittext = new EditText(this);
+            alert.setMessage("No beacons has found. Would you like to make a scan before?");
+            alert.setTitle("Before continue");
+
+            alert.setView(edittext);
+
+            alert.setPositiveButton("No", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int whichButton) {
+                    DiscoveryListFragment bottomSheetDialogFragment = new DiscoveryListFragment();
+                    bottomSheetDialogFragment.show(getSupportFragmentManager(), "bottom_nav_sheet_dialog");
+
+                }
+            });
+
+            alert.setNegativeButton("Yes", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int whichButton) {
+                    startBeaconDiscoveryService();
+                }
+            });
+
+            alert.show();
+        } else {
+            DiscoveryListFragment bottomSheetDialogFragment = new DiscoveryListFragment();
+            bottomSheetDialogFragment.show(getSupportFragmentManager(), "bottom_nav_sheet_dialog");
+        }
     }
 
     private void startBeaconDiscoveryService() {
         binding.activityMainTxtScanTimer.setVisibility(View.VISIBLE);
-        binding.activityMainBtnSearch.setEnabled(false);
+        mMenu.findItem(R.id.bottomappbar_menu_search).setEnabled(false);
+        binding.fab.setEnabled(false);
         new CountDownTimer(30000, 1000) {
             public void onTick(long millisUntilFinished) {
                 binding.activityMainTxtScanTimer.setText("Scanning.. seconds remaining: " + millisUntilFinished / 1000);
             }
 
             public void onFinish() {
+                mMenu.findItem(R.id.bottomappbar_menu_search).setEnabled(true);
+                binding.fab.setEnabled(true);
                 binding.activityMainTxtScanTimer.setVisibility(View.INVISIBLE);
-                binding.activityMainBtnSearch.setEnabled(true);
+                binding.activityMainBtnCollectData.setVisibility(View.VISIBLE);
+                binding.activityMainTxtNextOptions.setVisibility(View.VISIBLE);
                 stopService(beaconDiscoveryService);
             }
         }.start();
@@ -172,6 +238,13 @@ public class MainActivity extends AppCompatActivity {
         beaconDiscoveryService.setAction(ServiceBeaconDiscovery.ACTIONS.START.toString());
         startService(beaconDiscoveryService);
 
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.bottomappbar_menu, menu);
+        mMenu = menu;
+        return super.onCreateOptionsMenu(menu);
     }
 
    /*@Override
