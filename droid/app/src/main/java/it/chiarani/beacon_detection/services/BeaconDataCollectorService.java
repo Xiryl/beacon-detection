@@ -3,6 +3,7 @@ package it.chiarani.beacon_detection.services;
 import android.app.Service;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.os.CountDownTimer;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.Log;
@@ -19,13 +20,17 @@ import org.altbeacon.beacon.Region;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import it.chiarani.beacon_detection.AppExecutors;
 import it.chiarani.beacon_detection.BeaconDetectionApp;
 import it.chiarani.beacon_detection.controllers.ScannerController;
 import it.chiarani.beacon_detection.db.AppDatabase;
 import it.chiarani.beacon_detection.db.entities.BeaconDataEntity;
+import it.chiarani.beacon_detection.db.entities.CustomCSVRowEntity;
+import it.chiarani.beacon_detection.models.BeaconData;
 
 public class BeaconDataCollectorService extends Service implements BeaconConsumer, RangeNotifier {
 
@@ -34,6 +39,8 @@ public class BeaconDataCollectorService extends Service implements BeaconConsume
     private Region beaconRegion;
     private AppExecutors mAppExecutors;
     private AppDatabase mAppDatabase;
+    private Map<String, Integer> beaconsPerRow = new HashMap<>();
+    private CountDownTimer mCountDownTimer;
 
     // Possibili azioni che il servizio può intraprendere
     // START: avvia il polling
@@ -111,8 +118,10 @@ public class BeaconDataCollectorService extends Service implements BeaconConsume
         mBeaconManager.getBeaconParsers().add(new BeaconParser().
                 setBeaconLayout(BeaconParser.EDDYSTONE_TLM_LAYOUT));
 
-        mBeaconManager.setForegroundScanPeriod(ScannerController.getScanFrequencyPeriod());
-        mBeaconManager.setForegroundBetweenScanPeriod(ScannerController.getBetweenScanPeriod());
+        //mBeaconManager.setForegroundScanPeriod(ScannerController.getScanFrequencyPeriod());
+        //mBeaconManager.setForegroundBetweenScanPeriod(ScannerController.getBetweenScanPeriod());
+        mBeaconManager.setForegroundScanPeriod(100);
+        mBeaconManager.setForegroundBetweenScanPeriod(0);
 
     }
 
@@ -140,6 +149,30 @@ public class BeaconDataCollectorService extends Service implements BeaconConsume
     public void onBeaconServiceConnect() {
         mBeaconManager.addRangeNotifier(this);
 
+        mCountDownTimer = new CountDownTimer(720000,100) {
+
+            @Override
+            public void onTick(long millisUntilFinished) {
+               // HashMap<String, Integer> tmp = new HashMap<>();
+               // tmp.putAll(beaconsPerRow);
+                int tmp = beaconsPerRow.size();
+                mAppExecutors.diskIO().execute(() -> mAppDatabase.customCSVRowDao().insert(new CustomCSVRowEntity("Size: "+ tmp)));
+                beaconsPerRow.clear();
+                Log.d("xxxxx", "CLOCK CLEARED");
+            }
+
+            @Override
+            public void onFinish() {
+                HashMap<String, Integer> tmp = new HashMap<>();
+                tmp.putAll(beaconsPerRow);
+                beaconsPerRow.clear();
+                int x = 1;
+                // Your stuff
+            }
+        };
+
+        mCountDownTimer.start();
+
         try {
             mBeaconManager.startRangingBeaconsInRegion(beaconRegion);
         } catch (RemoteException e) {
@@ -157,6 +190,13 @@ public class BeaconDataCollectorService extends Service implements BeaconConsume
             if(!availableAddresses.contains(actualBeacon.getBluetoothAddress())) {
                 return;
             }
+
+            // insert the beacon in the hashmap "row"
+            beaconsPerRow.put(actualBeacon.getBluetoothAddress(), actualBeacon.getRssi());
+
+            Log.d("xxxxx", "beaconsPerRow: SIZE" + beaconsPerRow.size());
+            Log.d("xxxxx", "beacons: SIZE" + beacons.size());
+            Log.d("xxxxx", "put value " +actualBeacon.getBluetoothAddress()    +","+ actualBeacon.getRssi());
 
             String id1 = "null";
             try {

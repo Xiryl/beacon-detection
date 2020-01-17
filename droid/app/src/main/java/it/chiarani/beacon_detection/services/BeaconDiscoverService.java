@@ -146,36 +146,40 @@ public class BeaconDiscoverService extends Service implements BeaconConsumer, Ra
     public void didRangeBeaconsInRegion(Collection<Beacon> beacons, Region region) {
         Log.i(BeaconDiscoverService.class.getSimpleName(), String.format("Found %s beacons in range", beacons.size()));
         if (beacons.size() > 0) {
-            Beacon actualBeacon = beacons.iterator().next();
-            String id1 = "null";
-            try {
-                id1 = actualBeacon.getId1().toString();
-            }
-            catch (Exception ex) {
-                Log.e("", ex.getMessage());
-            }
+            for(Beacon b : beacons) {
 
-            String id2 = "null";
-            try {
-                id2 = actualBeacon.getId2().toString();
-            }
-            catch (Exception ex) {
-                Log.e("", ex.getMessage());
-            }
+                Beacon actualBeacon = b;
+                String id1 = "null";
+                try {
+                    id1 = actualBeacon.getId1().toString();
+                }
+                catch (Exception ex) {
+                    Log.e("", ex.getMessage());
+                }
 
-            String id3 = "null";
-            try {
-                id3 = actualBeacon.getId3().toString();
-            }
-            catch (Exception ex) {
-                Log.e("", ex.getMessage());
-            }
+                String id2 = "null";
+                try {
+                    id2 = actualBeacon.getId2().toString();
+                }
+                catch (Exception ex) {
+                    Log.e("", ex.getMessage());
+                }
 
-            BeaconDeviceEntity tmp = new BeaconDeviceEntity(actualBeacon.getBluetoothAddress(), id1, id2, id3, actualBeacon.getRssi(), actualBeacon.getDistance(), 0,0,0,0);
-            // add beacon without tlm
+                String id3 = "null";
+                try {
+                    id3 = actualBeacon.getId3().toString();
+                }
+                catch (Exception ex) {
+                    Log.e("", ex.getMessage());
+                }
 
-            mAppExecutors.diskIO().execute(() -> mAppDatabase.beaconDeviceDao().insert(tmp));
-            Log.i(BeaconDiscoverService.class.getSimpleName(), "The first beacon I see is about "+beacons.iterator().next().getDistance()+" meters away. And RSSI:" + beacons.iterator().next().getRssi() + "---" + beacons.iterator().next().getBluetoothName());
+                BeaconDeviceEntity tmp = new BeaconDeviceEntity(actualBeacon.getBluetoothAddress(), id1, id2, id3, actualBeacon.getRssi(), actualBeacon.getDistance(), 0,0,0,0);
+                // add beacon without tlm
+
+                mAppExecutors.diskIO().execute(() -> mAppDatabase.beaconDeviceDao().insert(tmp));
+                Log.i(BeaconDiscoverService.class.getSimpleName(), "The first beacon I see is about "+actualBeacon.getDistance()+" meters away. And RSSI:" + actualBeacon.getRssi() + "---" + actualBeacon.getBluetoothName());
+
+            }
         }
      }
 

@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.CountDownTimer;
+import android.text.method.ScrollingMovementMethod;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -36,6 +37,8 @@ import it.chiarani.beacon_detection.adapters.BeaconDiscoveryAdapter;
 import it.chiarani.beacon_detection.controllers.ScannerController;
 import it.chiarani.beacon_detection.databinding.ActivityMainBinding;
 import it.chiarani.beacon_detection.db.AppDatabase;
+import it.chiarani.beacon_detection.db.entities.BeaconDataEntity;
+import it.chiarani.beacon_detection.db.entities.CustomCSVRowEntity;
 import it.chiarani.beacon_detection.fragments.BottomNavigationDrawerFragment;
 import it.chiarani.beacon_detection.fragments.DiscoveryListFragment;
 import it.chiarani.beacon_detection.models.BeaconDevice;
@@ -132,7 +135,37 @@ public class MainActivity extends AppCompatActivity {
         adapterTags = new BeaconAdapter(beaconList);
         binding.activityMainRvReadings.setAdapter(adapterTags);
 
+        binding.activityMainTxtData.setMovementMethod(new ScrollingMovementMethod());
 
+      appDatabase.beaconDataDao().getAsList()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe( entities -> {
+                    if(entities != null && entities.size() == 0) {
+                        return;
+                    }
+                    for (BeaconDataEntity x : entities) {
+                        binding.activityMainTxtData.append(x.getTimestamp()+ " || " +  x.getAddress() + " || " + x.getRssi() + "\n");
+                    }
+                }, throwable -> {
+                    // Toast.makeText(this, getString(R.string.txtGenericError), Toast.LENGTH_LONG).show();
+                });
+
+          appDatabase.customCSVRowDao().getAsList()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe( entities -> {
+                    if(entities == null) {
+                        return;
+                    }
+                    for (CustomCSVRowEntity x : entities) {
+                        binding.activityMainTxtData1.append(x.getTimestamp()+ " || " +  x.getCsvRow() + "\n");
+                    }
+
+
+                }, throwable -> {
+                    // Toast.makeText(this, getString(R.string.txtGenericError), Toast.LENGTH_LONG).show();
+                });
 
     }
 
@@ -224,6 +257,8 @@ public class MainActivity extends AppCompatActivity {
         beaconDiscoveryService.setAction(BeaconDiscoverService.ACTIONS.START.toString());
         startService(beaconDiscoveryService);
         Toast.makeText(getApplicationContext(), "Beacon discovery service STARTED.", Toast.LENGTH_SHORT).show();
+
+
 
     }
 

@@ -81,8 +81,21 @@ public class DataCollectedFragment extends BottomSheetDialogFragment {
                     }
                     beaconList.clear();
                     beaconList.addAll(entities);
-                    Collections.reverse(beaconList);
+                   // Collections.reverse(beaconList);
                     adapterTags.notifyDataSetChanged();
+                }, throwable -> {
+                    // Toast.makeText(this, getString(R.string.txtGenericError), Toast.LENGTH_LONG).show();
+                });
+
+        appDatabase.customCSVRowDao().getAsList()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe( entities -> {
+                    if(entities == null) {
+                        return;
+                    }
+
+                    int y = 1;
                 }, throwable -> {
                     // Toast.makeText(this, getString(R.string.txtGenericError), Toast.LENGTH_LONG).show();
                 });
