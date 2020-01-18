@@ -1,5 +1,6 @@
 package it.chiarani.beacon_detection.fragments;
 
+import android.app.ActivityManager;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
@@ -28,6 +29,7 @@ import it.chiarani.beacon_detection.adapters.ItemClickListener;
 import it.chiarani.beacon_detection.databinding.FragmentDiscoveryListBinding;
 import it.chiarani.beacon_detection.db.AppDatabase;
 import it.chiarani.beacon_detection.models.BeaconDevice;
+import it.chiarani.beacon_detection.services.BeaconDataCollectorService;
 
 
 public class DiscoveryListFragment extends BottomSheetDialogFragment implements ItemClickListener {
@@ -60,6 +62,12 @@ public class DiscoveryListFragment extends BottomSheetDialogFragment implements 
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_discovery_list, container, false);
         View view = binding.getRoot();
 
+        if(isMyServiceRunning(BeaconDataCollectorService.class)) {
+            DataCollectedFragment bottomSheetDialogFragment = new DataCollectedFragment(filterAddr);
+            bottomSheetDialogFragment.show(getActivity().getSupportFragmentManager(), "bottom_nav_sheet_dialog_1");
+            this.dismiss();
+            return view;
+        }
 
         AppDatabase appDatabase = ((BeaconDetectionApp)getActivity().getApplication()).getRepository().getDatabase();
 
@@ -90,6 +98,16 @@ public class DiscoveryListFragment extends BottomSheetDialogFragment implements 
 
         return view;
 
+    }
+
+    private boolean isMyServiceRunning(Class<?> serviceClass) {
+        ActivityManager manager = (ActivityManager)getActivity().getSystemService(Context.ACTIVITY_SERVICE);
+        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+            if (serviceClass.getName().equals(service.service.getClassName())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private void startCollectingFragment() {

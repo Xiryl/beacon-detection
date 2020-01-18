@@ -7,12 +7,13 @@
     <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
-<androidx.constraintlayout.widget.ConstraintLayout
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".views.MainActivity">
 
-    <!--
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            tools:context=".views.MainActivity">
+
+            <!--
     <com.google.android.material.button.MaterialButton
 
         android:visibility="invisible"
@@ -76,114 +77,131 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />-->
 
-    <TextView
-        android:id="@+id/activity_main_txt_scan_timer"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="16dp"
-        android:layout_marginTop="16dp"
-        android:fontFamily="@font/os_regular"
-        android:text="scanning... "
-        android:textColor="#58BB4E"
-        android:textSize="18sp"
-        android:visibility="invisible"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+            <TextView
+                android:id="@+id/activity_main_txt_scan_timer"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="16dp"
+                android:layout_marginTop="16dp"
+                android:fontFamily="@font/os_regular"
+                android:text="scanning... "
+                android:textColor="#58BB4E"
+                android:textSize="18sp"
+                android:visibility="invisible"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
-    <TextView
-        android:id="@+id/activity_main_txt_scan"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="16dp"
-        android:layout_marginTop="4dp"
-        android:fontFamily="@font/os_bold"
-        android:text="Run discovery for view available beacons"
-        android:textColor="#000000"
-        android:textSize="18sp"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/activity_main_txt_scan_timer" />
+            <TextView
+                android:id="@+id/activity_main_txt_scan"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="16dp"
+                android:layout_marginTop="4dp"
+                android:fontFamily="@font/os_bold"
+                android:text="Run discovery for view available beacons"
+                android:textColor="#000000"
+                android:textSize="18sp"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/activity_main_txt_scan_timer" />
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/activityMainRvReadings"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_marginTop="16dp"
-        android:scrollbars="none"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/activity_main_txt_scan">
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/activityMainRvReadings"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_marginTop="16dp"
+                android:scrollbars="none"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/activity_main_txt_scan">
 
-    </androidx.recyclerview.widget.RecyclerView>
+            </androidx.recyclerview.widget.RecyclerView>
 
-    <TextView
-        android:id="@+id/activity_main_txt_next_options"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="16dp"
-        android:layout_marginTop="32dp"
-        android:fontFamily="@font/os_bold"
-        android:visibility="invisible"
-        android:text="What next?"
-        android:textColor="#000000"
-        android:textSize="18sp"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/activityMainRvReadings" />
+            <TextView
+                android:id="@+id/activity_main_txt_next_options"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="16dp"
+                android:layout_marginTop="32dp"
+                android:fontFamily="@font/os_bold"
+                android:text="What next?"
+                android:textColor="#000000"
+                android:textSize="18sp"
+                android:visibility="invisible"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/activityMainRvReadings" />
 
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/activity_main_btn_collect_data"
-        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="32dp"
-        android:padding="10dp"
-        android:visibility="invisible"
-        android:text="Collect Data"
-        app:cornerRadius="50dp"
-        app:icon="@drawable/ic_filter"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/activity_main_txt_next_options" />
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/activity_main_btn_collect_data"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="32dp"
+                android:padding="10dp"
+                android:text="Collect Data"
+                app:cornerRadius="50dp"
+                android:visibility="invisible"
+                app:icon="@drawable/ic_filter"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/activity_main_txt_next_options" />
 
+            <TextView
+                android:id="@+id/activity_main_txt_running_data"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="16dp"
+                android:layout_marginTop="32dp"
+                android:fontFamily="@font/os_bold"
 
-    <TextView
-        android:id="@+id/activity_main_txt_data"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="26dp"
-        android:fontFamily="@font/os_regular"
-        android:scrollbars="vertical"
-        android:textColor="#000000"
-        android:textSize="12sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/activity_main_btn_collect_data" />
+                android:visibility="invisible"
+                android:text="A data collection service is running now"
+                android:textColor="#000000"
+                android:textSize="18sp"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/activityMainRvReadings" />
 
-    <TextView
-        android:id="@+id/activity_main_txt_data1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="261dp"
-        android:fontFamily="@font/os_regular"
-        android:scrollbars="vertical"
-        android:textColor="#000000"
-        android:textSize="12sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/activity_main_btn_collect_data" />
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/activity_main_btn_stop_data"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="40dp"
+                android:padding="10dp"
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+                android:visibility="invisible"
+                android:text="STOP service"
+                app:cornerRadius="50dp"
+                app:icon="@drawable/ic_stop"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/activity_main_btn_view_raw_data"
+                app:layout_constraintTop_toBottomOf="@+id/activity_main_txt_next_options" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/activity_main_btn_view_raw_data"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="40dp"
+
+                android:layout_marginEnd="4dp"
+                android:padding="10dp"
+                android:text="View Live Raw"
+                android:visibility="invisible"
+                app:cornerRadius="50dp"
+                app:icon="@drawable/ic_data"
+                app:layout_constraintEnd_toStartOf="@+id/activity_main_btn_stop_data"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/activity_main_txt_next_options" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
         <com.google.android.material.bottomappbar.BottomAppBar
             android:layout_height="wrap_content"

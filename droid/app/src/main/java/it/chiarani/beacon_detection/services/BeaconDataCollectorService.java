@@ -7,6 +7,7 @@ import android.os.CountDownTimer;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.Log;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 
@@ -120,9 +121,8 @@ public class BeaconDataCollectorService extends Service implements BeaconConsume
 
         //mBeaconManager.setForegroundScanPeriod(ScannerController.getScanFrequencyPeriod());
         //mBeaconManager.setForegroundBetweenScanPeriod(ScannerController.getBetweenScanPeriod());
-        mBeaconManager.setForegroundScanPeriod(100);
+        mBeaconManager.setForegroundScanPeriod(ScannerController.getScanFrequencyPeriod());
         mBeaconManager.setForegroundBetweenScanPeriod(0);
-
     }
 
     /**
@@ -132,7 +132,9 @@ public class BeaconDataCollectorService extends Service implements BeaconConsume
     public void onDestroy() {
         super.onDestroy();
         stopDiscovery();
+        mCountDownTimer.cancel();
         mBeaconManager.unbind(this);
+        Toast.makeText(this, "dddddddTERMINATED.", Toast.LENGTH_SHORT).show();
     }
 
     /**
@@ -149,25 +151,27 @@ public class BeaconDataCollectorService extends Service implements BeaconConsume
     public void onBeaconServiceConnect() {
         mBeaconManager.addRangeNotifier(this);
 
-        mCountDownTimer = new CountDownTimer(720000,100) {
+        mCountDownTimer = new CountDownTimer(ScannerController.getCollectDataDuration() ,ScannerController.getScanFrequencyPeriod()) {
 
             @Override
             public void onTick(long millisUntilFinished) {
-               // HashMap<String, Integer> tmp = new HashMap<>();
-               // tmp.putAll(beaconsPerRow);
-                int tmp = beaconsPerRow.size();
-                mAppExecutors.diskIO().execute(() -> mAppDatabase.customCSVRowDao().insert(new CustomCSVRowEntity("Size: "+ tmp)));
+                HashMap<String, Integer> tmpHashmap = new HashMap<>();
+               tmpHashmap.putAll(beaconsPerRow);
+                String csvLine = "";
+
+                for(Map.Entry<String, Integer> entry : tmpHashmap.entrySet()) {
+                    String key = entry.getKey();
+                    Integer value = entry.getValue();
+
+                    csvLine += ";" + key +"-"+value;
+                }
+                CustomCSVRowEntity row = new CustomCSVRowEntity(csvLine + "");
+                mAppExecutors.diskIO().execute(() -> mAppDatabase.customCSVRowDao().insert(row));
                 beaconsPerRow.clear();
-                Log.d("xxxxx", "CLOCK CLEARED");
             }
 
             @Override
             public void onFinish() {
-                HashMap<String, Integer> tmp = new HashMap<>();
-                tmp.putAll(beaconsPerRow);
-                beaconsPerRow.clear();
-                int x = 1;
-                // Your stuff
             }
         };
 
@@ -185,48 +189,44 @@ public class BeaconDataCollectorService extends Service implements BeaconConsume
     public void didRangeBeaconsInRegion(Collection<Beacon> beacons, Region region) {
         Log.i(BeaconDataCollectorService.class.getSimpleName(), String.format("Found %s beacons in range", beacons.size()));
         if (beacons.size() > 0) {
-            Beacon actualBeacon = beacons.iterator().next();
+            for(Beacon b : beacons) {
+                if(!availableAddresses.contains(b.getBluetoothAddress())) {
+                    break;
+                }
 
-            if(!availableAddresses.contains(actualBeacon.getBluetoothAddress())) {
-                return;
+                // insert the beacon in the hashmap "row"
+                beaconsPerRow.put(b.getBluetoothAddress(), b.getRssi());
+                String id1 = "null";
+                try {
+                    id1 = b.getId1().toString();
+                }
+                catch (Exception ex) {
+                    Log.e("", ex.getMessage());
+                }
+
+                String id2 = "null";
+                try {
+                    id2 = b.getId2().toString();
+                }
+                catch (Exception ex) {
+                    Log.e("", ex.getMessage());
+                }
+
+                String id3 = "null";
+                try {
+                    id3 = b.getId3().toString();
+                }
+                catch (Exception ex) {
+                    Log.e("", ex.getMessage());
+                }
+
+                BeaconDataEntity tmp = new BeaconDataEntity(b.getBluetoothAddress(), id1, id2, id3, b.getRssi());
+                // add beacon without tlm
+
+                mAppExecutors.diskIO().execute(() -> mAppDatabase.beaconDataDao().insert(tmp));
+                Log.i(BeaconDataCollectorService.class.getSimpleName(), "The first beacon I see is about "+beacons.iterator().next().getDistance()+" meters away. And RSSI:" + beacons.iterator().next().getRssi() + "---" + beacons.iterator().next().getBluetoothName());
+
             }
-
-            // insert the beacon in the hashmap "row"
-            beaconsPerRow.put(actualBeacon.getBluetoothAddress(), actualBeacon.getRssi());
-
-            Log.d("xxxxx", "beaconsPerRow: SIZE" + beaconsPerRow.size());
-            Log.d("xxxxx", "beacons: SIZE" + beacons.size());
-            Log.d("xxxxx", "put value " +actualBeacon.getBluetoothAddress()    +","+ actualBeacon.getRssi());
-
-            String id1 = "null";
-            try {
-                id1 = actualBeacon.getId1().toString();
-            }
-            catch (Exception ex) {
-                Log.e("", ex.getMessage());
-            }
-
-            String id2 = "null";
-            try {
-                id2 = actualBeacon.getId2().toString();
-            }
-            catch (Exception ex) {
-                Log.e("", ex.getMessage());
-            }
-
-            String id3 = "null";
-            try {
-                id3 = actualBeacon.getId3().toString();
-            }
-            catch (Exception ex) {
-                Log.e("", ex.getMessage());
-            }
-
-            BeaconDataEntity tmp = new BeaconDataEntity(actualBeacon.getBluetoothAddress(), id1, id2, id3, actualBeacon.getRssi());
-            // add beacon without tlm
-
-            mAppExecutors.diskIO().execute(() -> mAppDatabase.beaconDataDao().insert(tmp));
-            Log.i(BeaconDataCollectorService.class.getSimpleName(), "The first beacon I see is about "+beacons.iterator().next().getDistance()+" meters away. And RSSI:" + beacons.iterator().next().getRssi() + "---" + beacons.iterator().next().getBluetoothName());
         }
      }
 

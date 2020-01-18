@@ -8,6 +8,16 @@
         android:layout_height="400dp"
         android:minHeight="400dp">
 
+        <View
+            android:id="@+id/view1"
+            android:layout_width="30dp"
+            android:layout_height="2dp"
+            android:layout_marginTop="16dp"
+            android:background="@android:color/darker_gray"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
         <TextView
             android:id="@+id/fragment_data_collected_title"
             android:layout_width="wrap_content"
@@ -20,7 +30,7 @@
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toBottomOf="@+id/view1" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:maxHeight="300dp"

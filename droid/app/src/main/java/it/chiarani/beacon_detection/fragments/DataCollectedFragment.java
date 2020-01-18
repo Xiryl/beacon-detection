@@ -1,5 +1,7 @@
 package it.chiarani.beacon_detection.fragments;
 
+import android.app.ActivityManager;
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -63,11 +65,17 @@ public class DataCollectedFragment extends BottomSheetDialogFragment {
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_data_collected, container, false);
         View view = binding.getRoot();
 
-        Intent beaconDiscoveryService = new Intent(getActivity(), BeaconDataCollectorService.class);
-        beaconDiscoveryService.putStringArrayListExtra("AVAILABLEADRESSES", this.filterAddr);
-        beaconDiscoveryService.setAction(BeaconDiscoverService.ACTIONS.START.toString());
-        getActivity().startService(beaconDiscoveryService);
-        Toast.makeText(getActivity().getApplicationContext(), "Data collection service STARTED.", Toast.LENGTH_SHORT).show();
+        if (!isMyServiceRunning(BeaconDataCollectorService.class)) {
+            Intent beaconDiscoveryService = new Intent(getActivity(), BeaconDataCollectorService.class);
+            beaconDiscoveryService.putStringArrayListExtra("AVAILABLEADRESSES", this.filterAddr);
+            beaconDiscoveryService.setAction(BeaconDiscoverService.ACTIONS.START.toString());
+            getActivity().startService(beaconDiscoveryService);
+            Toast.makeText(getActivity().getApplicationContext(), "Data collection service STARTED.", Toast.LENGTH_SHORT).show();
+        } else {
+
+            Toast.makeText(getActivity().getApplicationContext(), "Data collection service already in execution.", Toast.LENGTH_SHORT).show();
+        }
+
 
 
         AppDatabase appDatabase = ((BeaconDetectionApp)getActivity().getApplication()).getRepository().getDatabase();
@@ -115,14 +123,25 @@ public class DataCollectedFragment extends BottomSheetDialogFragment {
     }
 
 
+    private boolean isMyServiceRunning(Class<?> serviceClass) {
+        ActivityManager manager = (ActivityManager)getActivity().getSystemService(Context.ACTIVITY_SERVICE);
+        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+            if (serviceClass.getName().equals(service.service.getClassName())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+
     @Override
     public void onDetach() {
         super.onDetach();
         mListener = null;
-        Toast.makeText(getActivity().getApplicationContext(), "Data collection service STOPPED.", Toast.LENGTH_SHORT).show();
-        Intent beaconDiscoveryService = new Intent(getActivity(), BeaconDataCollectorService.class);
+        Toast.makeText(getActivity().getApplicationContext(), "Data collection service will continue in background.", Toast.LENGTH_SHORT).show();
+       /* Intent beaconDiscoveryService = new Intent(getActivity(), BeaconDataCollectorService.class);
         beaconDiscoveryService.setAction(BeaconDiscoverService.ACTIONS.STOP.toString());
-        getActivity().stopService(beaconDiscoveryService);
+        getActivity().stopService(beaconDiscoveryService);*/
     }
 
     public interface OnFragmentInteractionListener {

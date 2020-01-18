@@ -18,7 +18,6 @@ import it.chiarani.beacon_detection.views.SettingsActivity;
 public class BottomNavigationDrawerFragment extends BottomSheetDialogFragment {
 
     public BottomNavigationDrawerFragment() {
-        // Required empty public constructor
     }
 
     @Nullable
@@ -29,7 +28,6 @@ public class BottomNavigationDrawerFragment extends BottomSheetDialogFragment {
         NavigationView nv = view.findViewById(R.id.navigation_view);
         nv.setNavigationItemSelectedListener( v-> {
             switch (v.getItemId()) {
-                case R.id.bottom_nav_drawer_menu_collect_data: return  true;
                 case R.id.bottom_nav_drawer_menu_settings: {
                     Intent intent = new Intent(getActivity().getApplicationContext(), SettingsActivity.class);
                     startActivity(intent);

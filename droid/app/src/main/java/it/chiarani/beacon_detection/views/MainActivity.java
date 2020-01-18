@@ -40,8 +40,10 @@ import it.chiarani.beacon_detection.db.AppDatabase;
 import it.chiarani.beacon_detection.db.entities.BeaconDataEntity;
 import it.chiarani.beacon_detection.db.entities.CustomCSVRowEntity;
 import it.chiarani.beacon_detection.fragments.BottomNavigationDrawerFragment;
+import it.chiarani.beacon_detection.fragments.DataCollectedFragment;
 import it.chiarani.beacon_detection.fragments.DiscoveryListFragment;
 import it.chiarani.beacon_detection.models.BeaconDevice;
+import it.chiarani.beacon_detection.services.BeaconDataCollectorService;
 import it.chiarani.beacon_detection.services.BeaconDiscoverService;
 
 public class MainActivity extends AppCompatActivity {
@@ -131,42 +133,11 @@ public class MainActivity extends AppCompatActivity {
         binding.activityMainRvReadings.setLayoutManager(linearLayoutManagerTags);
 
         binding.fab.setOnClickListener(v -> startCollectDialog() );
+        binding.activityMainBtnStopData.setOnClickListener(v -> {stopDataCollectionService();});
 
         adapterTags = new BeaconAdapter(beaconList);
         binding.activityMainRvReadings.setAdapter(adapterTags);
-
-        binding.activityMainTxtData.setMovementMethod(new ScrollingMovementMethod());
-
-      appDatabase.beaconDataDao().getAsList()
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe( entities -> {
-                    if(entities != null && entities.size() == 0) {
-                        return;
-                    }
-                    for (BeaconDataEntity x : entities) {
-                        binding.activityMainTxtData.append(x.getTimestamp()+ " || " +  x.getAddress() + " || " + x.getRssi() + "\n");
-                    }
-                }, throwable -> {
-                    // Toast.makeText(this, getString(R.string.txtGenericError), Toast.LENGTH_LONG).show();
-                });
-
-          appDatabase.customCSVRowDao().getAsList()
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe( entities -> {
-                    if(entities == null) {
-                        return;
-                    }
-                    for (CustomCSVRowEntity x : entities) {
-                        binding.activityMainTxtData1.append(x.getTimestamp()+ " || " +  x.getCsvRow() + "\n");
-                    }
-
-
-                }, throwable -> {
-                    // Toast.makeText(this, getString(R.string.txtGenericError), Toast.LENGTH_LONG).show();
-                });
-
+        binding.activityMainBtnViewRawData.setOnClickListener(v -> {showLiveData();});
     }
 
     private void stopDiscoveryService() {
@@ -174,6 +145,26 @@ public class MainActivity extends AppCompatActivity {
         beaconService.setAction(BeaconDiscoverService.ACTIONS.STOP.toString());
         startService(beaconService);
         stopService(beaconService);
+    }
+
+    private void showLiveData  () {
+        DataCollectedFragment bottomSheetDialogFragment = new DataCollectedFragment(new ArrayList<String>());
+        bottomSheetDialogFragment.show(this.getSupportFragmentManager(), "bottom_nav_sheet_dialog_1");
+    }
+
+    private void stopDataCollectionService() {
+        beaconDiscoveryService = new Intent(this, BeaconDataCollectorService.class);
+        beaconDiscoveryService.setAction(BeaconDiscoverService.ACTIONS.STOP.toString());
+        this.stopService(beaconDiscoveryService);
+
+        Toast.makeText(this, "Data collection service TERMINATED.", Toast.LENGTH_SHORT).show();
+
+
+        binding.activityMainTxtRunningData.setVisibility(View.INVISIBLE);
+        binding.activityMainBtnStopData.setVisibility(View.INVISIBLE);
+        binding.activityMainBtnViewRawData.setVisibility(View.INVISIBLE);
+        binding.activityMainBtnCollectData.setVisibility(View.VISIBLE);
+        binding.activityMainTxtNextOptions.setVisibility(View.VISIBLE);
 
     }
 
@@ -195,7 +186,9 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+
     private void startCollectDialog() {
+
         if(this.beaconList.size() == 0) {
             AlertDialog.Builder alert = new AlertDialog.Builder(this);
             final EditText edittext = new EditText(this);
@@ -226,6 +219,12 @@ public class MainActivity extends AppCompatActivity {
 
             DiscoveryListFragment bottomSheetDialogFragment = new DiscoveryListFragment();
             bottomSheetDialogFragment.show(getSupportFragmentManager(), "bottom_nav_sheet_dialog");
+
+            binding.activityMainTxtRunningData.setVisibility(View.VISIBLE);
+            binding.activityMainBtnStopData.setVisibility(View.VISIBLE);
+            binding.activityMainBtnViewRawData.setVisibility(View.VISIBLE);
+            binding.activityMainBtnCollectData.setVisibility(View.INVISIBLE);
+            binding.activityMainTxtNextOptions.setVisibility(View.INVISIBLE);
         }
     }
 
@@ -233,6 +232,9 @@ public class MainActivity extends AppCompatActivity {
         binding.activityMainTxtScanTimer.setVisibility(View.VISIBLE);
         binding.activityMainBtnCollectData.setVisibility(View.INVISIBLE);
         binding.activityMainTxtNextOptions.setVisibility(View.INVISIBLE);
+        binding.activityMainTxtRunningData.setVisibility(View.INVISIBLE);
+        binding.activityMainBtnStopData.setVisibility(View.INVISIBLE);
+        binding.activityMainBtnViewRawData.setVisibility(View.INVISIBLE);
      //   binding.activityMainBtnStopSearch.setVisibility(View.VISIBLE);
         mMenu.findItem(R.id.bottomappbar_menu_search).setEnabled(false);
         binding.fab.setEnabled(false);
@@ -257,9 +259,6 @@ public class MainActivity extends AppCompatActivity {
         beaconDiscoveryService.setAction(BeaconDiscoverService.ACTIONS.START.toString());
         startService(beaconDiscoveryService);
         Toast.makeText(getApplicationContext(), "Beacon discovery service STARTED.", Toast.LENGTH_SHORT).show();
-
-
-
     }
 
     @Override
@@ -269,85 +268,6 @@ public class MainActivity extends AppCompatActivity {
         return super.onCreateOptionsMenu(menu);
     }
 
-   /*@Override
-    public void onBeaconServiceConnect() {
-
-        try {
-            // Tells the BeaconService to start looking for beacons that match the passed Region object
-            mBeaconManager.startRangingBeaconsInRegion(beaconRegion);
-        } catch (RemoteException e) {
-            e.printStackTrace();
-        }
-        // Specifies a class that should be called each time the BeaconService gets ranging data, once per second by default
-
-        mBeaconManager.addRangeNotifier(this);
-    }
-
-    @Override
-    public void didRangeBeaconsInRegion(Collection<Beacon> beacons, Region region) {
-        Log.i(TAG, String.format("Found %s beacons in range", beacons.size()));
-
-        if (beacons.size() > 0) {
-
-            Beacon actualBeacon = beacons.iterator().next();
-            boolean hasExtraParams = false;
-            if(actualBeacon.getExtraDataFields().size() >= 1) {
-                hasExtraParams = true;
-            }
-
-            String id1 = "null";
-            try {
-                id1 = actualBeacon.getId1().toString();
-            }
-            catch (Exception ex) {
-                Log.e(TAG, ex.getMessage());
-            }
-
-            String id2 = "null";
-            try {
-                id2 = actualBeacon.getId2().toString();
-            }
-            catch (Exception ex) {
-                Log.e(TAG, ex.getMessage());
-            }
-
-            String id3 = "null";
-            try {
-                id3 = actualBeacon.getId3().toString();
-            }
-            catch (Exception ex) {
-                Log.e(TAG, ex.getMessage());
-            }
-
-            if(beaconList.size() == 0) {
-                // add beacon without tlm
-                beaconList.add(new BeaconDevice(actualBeacon.getBluetoothAddress(), id1, id2, id3, actualBeacon.getRssi(), actualBeacon.getDistance()));
-                adapterTags.notifyDataSetChanged();
-                binding.activityMainTxtScan.setText("Found "+beaconList.size() + " beacons" );
-            }
-
-    /*        else if(beaconList.size() == 0 && hasExtraParams) {
-                // add beacon with TLM
-                long unsignedTemp = (actualBeacon.getExtraDataFields().get(2) >> 8);
-                double temperature = unsignedTemp > 128 ? unsignedTemp - 256 : unsignedTemp + (actualBeacon.getExtraDataFields().get(2) & 0xff) / 256.0;
-
-                beaconList.add(new BeaconDevice(actualBeacon.getBluetoothAddress(), id1, id2, id3, actualBeacon.getRssi(), actualBeacon.getExtraDataFields().get(0),
-                        actualBeacon.getExtraDataFields().get(1), actualBeacon.getExtraDataFields().get(3), actualBeacon.getExtraDataFields().get(4)));
-            }*/    /*
-            else {
-
-                for (BeaconDevice item : beaconList) {
-                    if(!item.getAddress().equals(actualBeacon.getBluetoothAddress())) {
-                            beaconList.add(new BeaconDevice(actualBeacon.getBluetoothAddress(), id1, id2, id3, actualBeacon.getRssi(), actualBeacon.getDistance()));
-                        adapterTags.notifyDataSetChanged();
-                        binding.activityMainTxtScan.setText("Found "+beaconList.size() + " beacons" );
-                    }
-                }
-            }
-            Log.i(TAG, "The first beacon I see is about "+beacons.iterator().next().getDistance()+" meters away. And RSSI:" + beacons.iterator().next().getRssi() + "---" + beacons.iterator().next().getBluetoothName());
-        }
-    }
-*/
     private void askForPermissions() {
         List<String> permissionsToAsk = new ArrayList<>();
         int requestResult = 0;
@@ -383,15 +303,16 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
-        Completable.fromAction(appDatabase.beaconDeviceDao()::clear)
+     /*   Completable.fromAction(appDatabase.beaconDeviceDao()::clear)
                 .subscribeOn(Schedulers.io())
                 .subscribe();
 
         Completable.fromAction(appDatabase.beaconDataDao()::clear)
                 .subscribeOn(Schedulers.io())
-                .subscribe();
+                .subscribe();*/
 
         stopService(beaconDiscoveryService);
+
         super.onDestroy();
     }
 }
