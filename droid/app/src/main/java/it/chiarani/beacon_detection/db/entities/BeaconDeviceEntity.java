@@ -10,6 +10,10 @@ import java.util.Locale;
 
 import it.chiarani.beacon_detection.models.BeaconDevice;
 
+/**
+ * Object for insert a value inside DAO {@link it.chiarani.beacon_detection.db.dao.BeaconDeviceDao}.
+ * View {@link BeaconDevice}.
+ */
 @Entity(tableName = "beacons", primaryKeys = {"id", "address"})
 public class BeaconDeviceEntity implements BeaconDevice {
 

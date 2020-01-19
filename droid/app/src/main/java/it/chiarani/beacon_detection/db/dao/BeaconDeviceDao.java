@@ -11,13 +11,14 @@ import java.util.List;
 import io.reactivex.Flowable;
 import it.chiarani.beacon_detection.db.entities.BeaconDeviceEntity;
 
+
+/**
+ * Database for save all the beacons found
+ */
 @Dao
 public interface BeaconDeviceDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insert(BeaconDeviceEntity beacon);
-
-    @Query("SELECT * FROM beacons")
-    Flowable<BeaconDeviceEntity> get();
 
     @Query("SELECT * FROM beacons")
     Flowable<List<BeaconDeviceEntity>> getAsList();

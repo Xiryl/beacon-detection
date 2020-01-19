@@ -8,6 +8,10 @@ import androidx.annotation.NonNull;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
+/**
+ * Get the app executor istances
+ * View android github samples for this class
+ */
 public class AppExecutors {
 
     private final Executor mDiskIO;

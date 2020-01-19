@@ -1,14 +1,8 @@
 package it.chiarani.beacon_detection.models;
 
-
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
-
 /**
- * Rappresenta un beacon
+ * Rappresent a Beacon interface for {@link it.chiarani.beacon_detection.db.entities.BeaconDeviceEntity}
  */
-
 public interface BeaconDevice {
 
     int getId();

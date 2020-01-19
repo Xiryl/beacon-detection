@@ -48,15 +48,15 @@ import it.chiarani.beacon_detection.services.BeaconDiscoverService;
 
 public class MainActivity extends AppCompatActivity {
 
-    ActivityMainBinding binding;
+    private ActivityMainBinding binding;
+
     private static final String TAG = "main activity";
     private final CompositeDisposable mDisposable = new CompositeDisposable();
-    private boolean disableButtonFlag = false;
     private List<BeaconDevice> beaconList = new ArrayList<>();
-    BeaconAdapter adapterTags;
-    Intent beaconDiscoveryService;
-    AppDatabase appDatabase;
-    Menu mMenu;
+    private BeaconAdapter adapterTags;
+    private Intent beaconDiscoveryService;
+    private AppDatabase appDatabase;
+    private Menu mMenu;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,42 +69,11 @@ public class MainActivity extends AppCompatActivity {
         this.setSupportActionBar(binding.bottomAppBar);
         setBottomAppBarHamburgerListener();
 
-      /*  mBeaconManager = BeaconManager.getInstanceForApplication(this);
-
-        beaconRegion = new Region("beacon_region", null, null, null);
-
-        // In this example, we will use Eddystone protocol, so we have to define it here
-        mBeaconManager.getBeaconParsers().add(new BeaconParser().
-                setBeaconLayout(BeaconParser.EDDYSTONE_UID_LAYOUT));
-        mBeaconManager.getBeaconParsers().add(new BeaconParser().
-                setBeaconLayout(BeaconParser.EDDYSTONE_TLM_LAYOUT));
-        //mBeaconManager.setForegroundScanPeriod(100);
-        //mBeaconManager.setForegroundBetweenScanPeriod(0);
-        //Binds this activity to the BeaconService
-        mBeaconManager.bind(this);
-       */
 
         AppExecutors appExecutors = ((BeaconDetectionApp)getApplication()).getRepository().getAppExecutors();
 
         appDatabase = ((BeaconDetectionApp)getApplication()).getRepository().getDatabase();
 
-       /* appDatabase.beaconDeviceDao().get().observe(this, data -> {
-            int x = data.size();
-        });
-
-        mDisposable.add(appDatabase.beaconDeviceDao().get()
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe( entities -> {
-
-                    if(entities != null) {
-                        Toast.makeText(this, entities.getAddress(), Toast.LENGTH_LONG).show();
-                        return;
-                    }
-
-                }, throwable -> {
-                    // Toast.makeText(this, getString(R.string.txtGenericError), Toast.LENGTH_LONG).show();
-                }));*/
 
         mDisposable.add(appDatabase.beaconDeviceDao().getAsList()
                 .subscribeOn(Schedulers.io())
@@ -140,13 +109,6 @@ public class MainActivity extends AppCompatActivity {
         binding.activityMainBtnViewRawData.setOnClickListener(v -> {showLiveData();});
     }
 
-    private void stopDiscoveryService() {
-        Intent beaconService = new Intent(this, BeaconDiscoverService.class);
-        beaconService.setAction(BeaconDiscoverService.ACTIONS.STOP.toString());
-        startService(beaconService);
-        stopService(beaconService);
-    }
-
     private void showLiveData  () {
         DataCollectedFragment bottomSheetDialogFragment = new DataCollectedFragment(new ArrayList<String>());
         bottomSheetDialogFragment.show(this.getSupportFragmentManager(), "bottom_nav_sheet_dialog_1");
@@ -158,7 +120,6 @@ public class MainActivity extends AppCompatActivity {
         this.stopService(beaconDiscoveryService);
 
         Toast.makeText(this, "Data collection service TERMINATED.", Toast.LENGTH_SHORT).show();
-
 
         binding.activityMainTxtRunningData.setVisibility(View.INVISIBLE);
         binding.activityMainBtnStopData.setVisibility(View.INVISIBLE);

@@ -1,15 +1,12 @@
 package it.chiarani.beacon_detection;
 
-import android.app.Application;
 import android.content.Context;
 
-import java.util.concurrent.Executor;
-
-import io.reactivex.Completable;
-import io.reactivex.Flowable;
 import it.chiarani.beacon_detection.db.AppDatabase;
-import it.chiarani.beacon_detection.db.entities.BeaconDeviceEntity;
 
+/**
+ * App repository, collect the istances
+ */
 public class DataRepository {
 
     private static DataRepository instance;

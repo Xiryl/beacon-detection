@@ -7,8 +7,13 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
+/**
+ * Object for insert a value inside DAO {@link it.chiarani.beacon_detection.db.dao.CustomCSVRowDao}.
+ * This is a custom CSV Row
+ */
 @Entity(tableName = "customrow")
 public class CustomCSVRowEntity {
+
     @PrimaryKey(autoGenerate = true)
     private int id;
     private String csvRow;

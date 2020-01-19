@@ -11,13 +11,14 @@ import java.util.List;
 import io.reactivex.Flowable;
 import it.chiarani.beacon_detection.db.entities.CustomCSVRowEntity;
 
+
+/**
+ * Database for save all the data as CSV
+ */
 @Dao
 public interface CustomCSVRowDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insert(CustomCSVRowEntity customCSVRowEntity);
-
-    @Query("SELECT * FROM customrow")
-    Flowable<CustomCSVRowEntity> get();
 
     @Query("SELECT * FROM customrow")
     Flowable<List<CustomCSVRowEntity>> getAsList();

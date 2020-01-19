@@ -15,6 +15,11 @@ import com.google.android.material.navigation.NavigationView;
 import it.chiarani.beacon_detection.R;
 import it.chiarani.beacon_detection.views.SettingsActivity;
 
+/**
+ * Application bottom menu fragment
+ *
+ * Extends {@link BottomSheetDialogFragment} for modal bottom-up effect
+ */
 public class BottomNavigationDrawerFragment extends BottomSheetDialogFragment {
 
     public BottomNavigationDrawerFragment() {
@@ -27,14 +32,13 @@ public class BottomNavigationDrawerFragment extends BottomSheetDialogFragment {
 
         NavigationView nv = view.findViewById(R.id.navigation_view);
         nv.setNavigationItemSelectedListener( v-> {
-            switch (v.getItemId()) {
-                case R.id.bottom_nav_drawer_menu_settings: {
-                    Intent intent = new Intent(getActivity().getApplicationContext(), SettingsActivity.class);
-                    startActivity(intent);
-                    this.dismiss();
-                }
-                default: return  true;
-        }});
+            if (v.getItemId() == R.id.bottom_nav_drawer_menu_settings) {
+                Intent intent = new Intent(getActivity().getApplicationContext(), SettingsActivity.class);
+                startActivity(intent);
+                this.dismiss();
+            }
+            return true;
+        });
 
         return  view;
     }

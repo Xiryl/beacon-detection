@@ -12,19 +12,18 @@ import androidx.preference.EditTextPreference;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 
-import java.util.Map;
-
 import it.chiarani.beacon_detection.R;
 import it.chiarani.beacon_detection.controllers.ScannerController;
 
+/**
+ * Settings fragment modal
+ */
 public class SettingsFragment extends PreferenceFragmentCompat implements Preference.OnPreferenceChangeListener {
-
 
     private EditTextPreference mDiscoveryFrequency;
     private EditTextPreference mDiscoveryTime;
 
     public SettingsFragment() {
-        // Required empty public constructor
     }
 
     @Override
@@ -39,11 +38,9 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Prefer
 
         mDiscoveryFrequency = (EditTextPreference)getPreferenceManager().findPreference("pref_key_discovery_frequency");
         mDiscoveryFrequency.setOnPreferenceChangeListener(this::onPreferenceChange);
-       //  mDiscoveryFrequency.setSummary("Actual:" + ScannerController.getScanFrequencyPeriod());
 
         mDiscoveryTime = (EditTextPreference)getPreferenceManager().findPreference("pref_key_discovery_time");
         mDiscoveryTime.setOnPreferenceChangeListener(this::onPreferenceChange);
-      //   mDiscoveryTime.setSummary("Actual:" + ScannerController.getScanTime());
     }
 
     @Override

@@ -1,5 +1,8 @@
 package it.chiarani.beacon_detection.models;
 
+/**
+ * Rappresent a BeaconData interface for {@link it.chiarani.beacon_detection.db.entities.BeaconDataEntity}
+ */
 public interface BeaconData {
     int getId();
 
