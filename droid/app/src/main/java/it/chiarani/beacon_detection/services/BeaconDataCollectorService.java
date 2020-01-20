@@ -24,6 +24,9 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.SortedSet;
+import java.util.TreeMap;
+import java.util.TreeSet;
 
 import it.chiarani.beacon_detection.AppExecutors;
 import it.chiarani.beacon_detection.BeaconDetectionApp;
@@ -40,7 +43,7 @@ public class BeaconDataCollectorService extends Service implements BeaconConsume
     private Region beaconRegion;
     private AppExecutors mAppExecutors;
     private AppDatabase mAppDatabase;
-    private Map<String, Integer> beaconsPerRow = new HashMap<>();
+    private Map<String, Integer> beaconsPerRow = new TreeMap<>();
     private CountDownTimer mCountDownTimer;
 
     // Possibili azioni che il servizio può intraprendere
@@ -134,7 +137,7 @@ public class BeaconDataCollectorService extends Service implements BeaconConsume
         stopDiscovery();
         mCountDownTimer.cancel();
         mBeaconManager.unbind(this);
-        Toast.makeText(this, "dddddddTERMINATED.", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "Collector service TERMINATED.", Toast.LENGTH_SHORT).show();
     }
 
     /**
@@ -155,8 +158,15 @@ public class BeaconDataCollectorService extends Service implements BeaconConsume
 
             @Override
             public void onTick(long millisUntilFinished) {
-                HashMap<String, Integer> tmpHashmap = new HashMap<>();
-               tmpHashmap.putAll(beaconsPerRow);
+                Map<String, Integer> tmpHashmap = new TreeMap<>();
+                tmpHashmap.putAll(beaconsPerRow);
+
+                /*SortedSet<String> keys = new TreeSet<>(tmpHashmap.keySet());
+                for (String key : keys) {
+                    Integer value = tmpHashmap.get(key);
+                    // do something
+                }
+                */
                 String csvLine = "";
 
                 for(Map.Entry<String, Integer> entry : tmpHashmap.entrySet()) {
@@ -165,13 +175,31 @@ public class BeaconDataCollectorService extends Service implements BeaconConsume
 
                     csvLine += ";" + key +"-"+value;
                 }
+
                 CustomCSVRowEntity row = new CustomCSVRowEntity(csvLine + "");
                 mAppExecutors.diskIO().execute(() -> mAppDatabase.customCSVRowDao().insert(row));
                 beaconsPerRow.clear();
+
+                /*
+                *                 Map<String, Integer> tmpHashmap = new TreeMap<>();
+                tmpHashmap.putAll(beaconsPerRow);
+
+                SortedSet<String> keys = new TreeSet<>(tmpHashmap.keySet());
+                String csvLine = "";
+                for (Iterator<String> iterator = keys.iterator(); iterator.hasNext(); ) {
+                    Integer key = tmpHashmap.get(iterator);
+
+                    csvLine += ";" + iterator +"-"+key;
+                }
+
+                CustomCSVRowEntity row = new CustomCSVRowEntity(csvLine + "");
+                mAppExecutors.diskIO().execute(() -> mAppDatabase.customCSVRowDao().insert(row));
+                beaconsPerRow.clear();*/
             }
 
             @Override
             public void onFinish() {
+                stopSelf();
             }
         };
 
@@ -194,7 +222,7 @@ public class BeaconDataCollectorService extends Service implements BeaconConsume
                     break;
                 }
 
-                // insert the beacon in the hashmap "row"
+                // insert the beacon in the map "row"
                 beaconsPerRow.put(b.getBluetoothAddress(), b.getRssi());
                 String id1 = "null";
                 try {

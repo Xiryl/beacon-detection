@@ -90,6 +90,7 @@ public class DataCollectedFragment extends BottomSheetDialogFragment {
 
         setRecyclerViewBinding();
 
+
         // set modal title
         binding.fragmentDataCollectedTitle.setText(String.format("Real time data from %s device(s).", this.filterAddr.size()));
 
@@ -120,7 +121,7 @@ public class DataCollectedFragment extends BottomSheetDialogFragment {
     public void onDetach() {
         super.onDetach();
         mDisposable.dispose(); // dispose the observe, memory leak otherwise!!
-        Toast.makeText(getActivity().getApplicationContext(), "Data collection service will continue in background.", Toast.LENGTH_SHORT).show();
+        // Toast.makeText(getActivity().getApplicationContext(), "Data collection service will continue in background.", Toast.LENGTH_SHORT).show();
     }
 
 }

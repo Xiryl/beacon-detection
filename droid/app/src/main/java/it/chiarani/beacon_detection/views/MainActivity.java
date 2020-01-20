@@ -91,6 +91,19 @@ public class MainActivity extends AppCompatActivity {
                     // Toast.makeText(this, getString(R.string.txtGenericError), Toast.LENGTH_LONG).show();
                 }));
 
+        mDisposable.add(appDatabase.customCSVRowDao().getAsList()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe( entities -> {
+                    if(entities != null && entities.size() == 0) {
+                        return;
+                    }
+                    int x = 1;
+
+                }, throwable -> {
+                    // Toast.makeText(this, getString(R.string.txtGenericError), Toast.LENGTH_LONG).show();
+                }));
+
 
         binding.activityMainBtnCollectData.setOnClickListener(v -> {
             startCollectDialog();
@@ -125,6 +138,8 @@ public class MainActivity extends AppCompatActivity {
         binding.activityMainBtnStopData.setVisibility(View.INVISIBLE);
         binding.activityMainBtnViewRawData.setVisibility(View.INVISIBLE);
         binding.activityMainBtnCollectData.setVisibility(View.VISIBLE);
+
+        binding.activityMainBtnExportData.setVisibility(View.VISIBLE);
         binding.activityMainTxtNextOptions.setVisibility(View.VISIBLE);
 
     }
@@ -185,6 +200,7 @@ public class MainActivity extends AppCompatActivity {
             binding.activityMainBtnStopData.setVisibility(View.VISIBLE);
             binding.activityMainBtnViewRawData.setVisibility(View.VISIBLE);
             binding.activityMainBtnCollectData.setVisibility(View.INVISIBLE);
+            binding.activityMainBtnExportData.setVisibility(View.INVISIBLE);
             binding.activityMainTxtNextOptions.setVisibility(View.INVISIBLE);
         }
     }
@@ -192,6 +208,8 @@ public class MainActivity extends AppCompatActivity {
     private void startBeaconDiscoveryService() {
         binding.activityMainTxtScanTimer.setVisibility(View.VISIBLE);
         binding.activityMainBtnCollectData.setVisibility(View.INVISIBLE);
+
+        binding.activityMainBtnExportData.setVisibility(View.INVISIBLE);
         binding.activityMainTxtNextOptions.setVisibility(View.INVISIBLE);
         binding.activityMainTxtRunningData.setVisibility(View.INVISIBLE);
         binding.activityMainBtnStopData.setVisibility(View.INVISIBLE);
@@ -209,6 +227,8 @@ public class MainActivity extends AppCompatActivity {
                 binding.fab.setEnabled(true);
                 binding.activityMainTxtScanTimer.setVisibility(View.INVISIBLE);
                 binding.activityMainBtnCollectData.setVisibility(View.VISIBLE);
+
+                binding.activityMainBtnExportData.setVisibility(View.VISIBLE);
                 binding.activityMainTxtNextOptions.setVisibility(View.VISIBLE);
              //   binding.activityMainBtnStopSearch.setVisibility(View.INVISIBLE);
                 stopService(beaconDiscoveryService);

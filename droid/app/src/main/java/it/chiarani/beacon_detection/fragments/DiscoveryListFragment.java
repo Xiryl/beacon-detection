@@ -25,6 +25,7 @@ import it.chiarani.beacon_detection.R;
 import it.chiarani.beacon_detection.adapters.BeaconDiscoveryAdapter;
 import it.chiarani.beacon_detection.adapters.ItemClickListener;
 import it.chiarani.beacon_detection.controllers.Helpers;
+import it.chiarani.beacon_detection.controllers.ScannerController;
 import it.chiarani.beacon_detection.databinding.FragmentDiscoveryListBinding;
 import it.chiarani.beacon_detection.db.AppDatabase;
 import it.chiarani.beacon_detection.models.BeaconDevice;
@@ -92,7 +93,7 @@ public class DiscoveryListFragment extends BottomSheetDialogFragment implements 
 
         // onclick handler
         binding.fragmentDiscoveryBtnCollectData.setOnClickListener( v -> startCollectingFragment());
-
+        binding.fragmentDataCollectedEditextSessionDuration.setText(ScannerController.getCollectDataDuration()+"");
         return view;
 
     }
@@ -108,6 +109,7 @@ public class DiscoveryListFragment extends BottomSheetDialogFragment implements 
     }
 
     private void startCollectingFragment() {
+        ScannerController.setCollectDataDuration(Long.parseLong(binding.fragmentDataCollectedEditextSessionDuration.getText().toString()));
         DataCollectedFragment bottomSheetDialogFragment = new DataCollectedFragment(filterAddr);
         bottomSheetDialogFragment.show(getActivity().getSupportFragmentManager(), "bottom_nav_sheet_dialog_1");
         this.dismiss();

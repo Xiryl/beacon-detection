@@ -6,8 +6,8 @@ package it.chiarani.beacon_detection.controllers;
 public final class ScannerController {
     private static long scanFrequencyPeriod = 1000;
     private static long betweenScanPeriod = 0;
-    private static long scanTime = 30000;
-    private static long collectDataDuration = 720000;
+    private static long scanTime = 10000;
+    private static long collectDataDuration = 50000;
     private static long qtaPeople = 5;
 
     public ScannerController() {
