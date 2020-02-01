@@ -1,8 +1,13 @@
 package it.chiarani.beacon_detection.services;
 
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.os.Build;
 import android.os.CountDownTimer;
 import android.os.IBinder;
 import android.os.RemoteException;
@@ -10,6 +15,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
+import androidx.core.app.NotificationCompat;
 
 import org.altbeacon.beacon.Beacon;
 import org.altbeacon.beacon.BeaconConsumer;
@@ -30,11 +36,14 @@ import java.util.TreeSet;
 
 import it.chiarani.beacon_detection.AppExecutors;
 import it.chiarani.beacon_detection.BeaconDetectionApp;
+import it.chiarani.beacon_detection.R;
+import it.chiarani.beacon_detection.controllers.Helpers;
 import it.chiarani.beacon_detection.controllers.ScannerController;
 import it.chiarani.beacon_detection.db.AppDatabase;
 import it.chiarani.beacon_detection.db.entities.BeaconDataEntity;
 import it.chiarani.beacon_detection.db.entities.CustomCSVRowEntity;
 import it.chiarani.beacon_detection.models.BeaconData;
+import it.chiarani.beacon_detection.views.MainActivity;
 
 public class BeaconDataCollectorService extends Service implements BeaconConsumer, RangeNotifier {
 
@@ -44,6 +53,7 @@ public class BeaconDataCollectorService extends Service implements BeaconConsume
     private AppExecutors mAppExecutors;
     private AppDatabase mAppDatabase;
     private Map<String, Integer> beaconsPerRow = new TreeMap<>();
+    private TreeMap<String, Integer> orderRow = new TreeMap<>();
     private CountDownTimer mCountDownTimer;
 
     // Possibili azioni che il servizio può intraprendere
@@ -62,12 +72,17 @@ public class BeaconDataCollectorService extends Service implements BeaconConsume
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         ACTIONS action = ACTIONS.valueOf(intent.getAction());
-        availableAddresses = intent.getStringArrayListExtra("AVAILABLEADRESSES");
 
-        Log.d(BeaconDataCollectorService.class.getSimpleName(),"Received action:"+ action);
 
         if (action == ACTIONS.START) {
             Log.d(BeaconDataCollectorService.class.getSimpleName(), "Start discovery");
+
+            availableAddresses = intent.getStringArrayListExtra("AVAILABLEADRESSES");
+            for(String x : availableAddresses) {
+                orderRow.put(x, 1);
+            }
+
+            Log.d(BeaconDataCollectorService.class.getSimpleName(),"Received action:"+ action);
 
             // L'avvio del monitoraggio viene demandato ad un'altra funzione, per chiarità
             startDiscovery();
@@ -89,6 +104,19 @@ public class BeaconDataCollectorService extends Service implements BeaconConsume
     private void startDiscovery() {
         //Binds this activity to the BeaconService
         mBeaconManager.bind(this);
+
+
+        String csvLine = "Dati di sessione con durata: "+ ScannerController.getCollectDataDuration() +", e frequenza (ms): "+ScannerController.getScanFrequencyPeriod()+"\n";
+
+        for(Map.Entry<String, Integer> entry : orderRow.entrySet()) {
+            String key = entry.getKey();
+            Integer value = entry.getValue();
+
+            csvLine += "timestamp;" + key;
+        }
+
+        CustomCSVRowEntity row = new CustomCSVRowEntity(csvLine);
+        mAppExecutors.diskIO().execute(() -> mAppDatabase.customCSVRowDao().insert(row));
     }
 
     private void stopDiscovery() {
@@ -126,6 +154,8 @@ public class BeaconDataCollectorService extends Service implements BeaconConsume
         //mBeaconManager.setForegroundBetweenScanPeriod(ScannerController.getBetweenScanPeriod());
         mBeaconManager.setForegroundScanPeriod(ScannerController.getScanFrequencyPeriod());
         mBeaconManager.setForegroundBetweenScanPeriod(0);
+
+        setNotification(1);
     }
 
     /**
@@ -133,9 +163,12 @@ public class BeaconDataCollectorService extends Service implements BeaconConsume
      */
     @Override
     public void onDestroy() {
+        setNotification(0);
         super.onDestroy();
         stopDiscovery();
-        mCountDownTimer.cancel();
+        if(mCountDownTimer != null) {
+            mCountDownTimer.cancel();
+        }
         mBeaconManager.unbind(this);
         Toast.makeText(this, "Collector service TERMINATED.", Toast.LENGTH_SHORT).show();
     }
@@ -158,43 +191,29 @@ public class BeaconDataCollectorService extends Service implements BeaconConsume
 
             @Override
             public void onTick(long millisUntilFinished) {
-                Map<String, Integer> tmpHashmap = new TreeMap<>();
-                tmpHashmap.putAll(beaconsPerRow);
+                Map<String, Integer> tmpHashmap = new TreeMap<>(beaconsPerRow);
 
-                /*SortedSet<String> keys = new TreeSet<>(tmpHashmap.keySet());
-                for (String key : keys) {
-                    Integer value = tmpHashmap.get(key);
-                    // do something
-                }
-                */
                 String csvLine = "";
 
-                for(Map.Entry<String, Integer> entry : tmpHashmap.entrySet()) {
-                    String key = entry.getKey();
-                    Integer value = entry.getValue();
-
-                    csvLine += ";" + key +"-"+value;
+                if(tmpHashmap.size() == 0) {
+                    beaconsPerRow.clear();
+                    return;
                 }
+
+                for(Map.Entry<String, Integer> entry : orderRow.entrySet()) {
+                    if(tmpHashmap.containsKey(entry.getKey())) {
+                        Integer value = tmpHashmap.get(entry.getKey());
+                        csvLine += ";" + value;
+                    }else {
+                        csvLine += ";0";
+                    }
+                }
+
 
                 CustomCSVRowEntity row = new CustomCSVRowEntity(csvLine + "");
                 mAppExecutors.diskIO().execute(() -> mAppDatabase.customCSVRowDao().insert(row));
                 beaconsPerRow.clear();
-
-                /*
-                *                 Map<String, Integer> tmpHashmap = new TreeMap<>();
-                tmpHashmap.putAll(beaconsPerRow);
-
-                SortedSet<String> keys = new TreeSet<>(tmpHashmap.keySet());
-                String csvLine = "";
-                for (Iterator<String> iterator = keys.iterator(); iterator.hasNext(); ) {
-                    Integer key = tmpHashmap.get(iterator);
-
-                    csvLine += ";" + iterator +"-"+key;
-                }
-
-                CustomCSVRowEntity row = new CustomCSVRowEntity(csvLine + "");
-                mAppExecutors.diskIO().execute(() -> mAppDatabase.customCSVRowDao().insert(row));
-                beaconsPerRow.clear();*/
+                // setNotification(millisUntilFinished);
             }
 
             @Override
@@ -256,8 +275,47 @@ public class BeaconDataCollectorService extends Service implements BeaconConsume
 
             }
         }
+
+
      }
 
+
+    private void setNotification(long beaconsFoundSoFar) {
+        PendingIntent pendingIntent =
+                PendingIntent.getActivity(this, 0, new Intent(this, MainActivity.class), 0);
+
+        // Se il parametro della funzione è -1 visualizzo un messaggio di errore sulla notifica
+        String notificationTitle = "Beacon detection";
+        String notificationMessage = "collecting... ";
+
+        if(beaconsFoundSoFar == 0) {
+            notificationTitle = "Beacon detection";
+            notificationMessage = "End.";
+        }
+
+        createNotificationChannel();
+        Intent notificationIntent = new Intent(this, MainActivity.class);
+        Notification notification = new NotificationCompat.Builder(this, "misc")
+                .setContentTitle(notificationTitle)
+                .setContentText(notificationMessage)
+                .setSmallIcon(R.drawable.ic_ble)
+                .setContentIntent(pendingIntent)
+                .build();
+
+        startForeground(1, notification);
+    }
+
+    private void createNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationChannel serviceChannel = new NotificationChannel(
+                    "misc",
+                    "Foreground Service Channel",
+                    NotificationManager.IMPORTANCE_DEFAULT
+            );
+            NotificationManager manager = getSystemService(NotificationManager.class);
+            manager.createNotificationChannel(serviceChannel);
+        }
+    }
 
     @Override
     public boolean bindService(Intent service, ServiceConnection conn, int flags) {

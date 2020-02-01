@@ -23,7 +23,9 @@ import io.reactivex.schedulers.Schedulers;
 import it.chiarani.beacon_detection.BeaconDetectionApp;
 import it.chiarani.beacon_detection.R;
 import it.chiarani.beacon_detection.adapters.BeaconDiscoveryAdapter;
+import it.chiarani.beacon_detection.adapters.FragmentCallback;
 import it.chiarani.beacon_detection.adapters.ItemClickListener;
+import it.chiarani.beacon_detection.controllers.FragmentCallbackType;
 import it.chiarani.beacon_detection.controllers.Helpers;
 import it.chiarani.beacon_detection.controllers.ScannerController;
 import it.chiarani.beacon_detection.databinding.FragmentDiscoveryListBinding;
@@ -45,8 +47,10 @@ public class DiscoveryListFragment extends BottomSheetDialogFragment implements 
     private List<BeaconDevice> beaconList = new ArrayList<>();
     private List<String> filterAddr = new ArrayList<>(); // filter MAC address
     private final CompositeDisposable mDisposable = new CompositeDisposable();
+    private FragmentCallback callback;
 
-    public DiscoveryListFragment() {
+    public DiscoveryListFragment(FragmentCallback callback) {
+        this.callback = callback;
     }
 
     @Override
@@ -64,9 +68,7 @@ public class DiscoveryListFragment extends BottomSheetDialogFragment implements 
 
         if(Helpers.isMyServiceRunning(BeaconDataCollectorService.class, getActivity())) {
 
-            // Launch DataCollectedFragment if service is already active for view real-time data
-            DataCollectedFragment bottomSheetDialogFragment = new DataCollectedFragment(filterAddr);
-            bottomSheetDialogFragment.show(getActivity().getSupportFragmentManager(), "bottom_nav_sheet_dialog_1");
+            callback.onFragmentCallback(1, FragmentCallbackType.SERVICE_ALREADY_RUNNING, null);
             this.dismiss();
             return view;
         }
@@ -93,9 +95,7 @@ public class DiscoveryListFragment extends BottomSheetDialogFragment implements 
 
         // onclick handler
         binding.fragmentDiscoveryBtnCollectData.setOnClickListener( v -> startCollectingFragment());
-        binding.fragmentDataCollectedEditextSessionDuration.setText(ScannerController.getCollectDataDuration()+"");
         return view;
-
     }
 
     private void setRecyclerViewBinding() {
@@ -109,9 +109,11 @@ public class DiscoveryListFragment extends BottomSheetDialogFragment implements 
     }
 
     private void startCollectingFragment() {
-        ScannerController.setCollectDataDuration(Long.parseLong(binding.fragmentDataCollectedEditextSessionDuration.getText().toString()));
-        DataCollectedFragment bottomSheetDialogFragment = new DataCollectedFragment(filterAddr);
-        bottomSheetDialogFragment.show(getActivity().getSupportFragmentManager(), "bottom_nav_sheet_dialog_1");
+        // set the duration of the scan
+        ScannerController.setCollectDataDuration(Long.parseLong(binding.fragmentDiscoveryListEditextSessionDuration.getText().toString()));
+
+        // callback to activity
+        callback.onFragmentCallback(1, FragmentCallbackType.START_COLLECT_SERVICE, filterAddr);
         this.dismiss();
     }
 

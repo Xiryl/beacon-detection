@@ -3,6 +3,12 @@ package it.chiarani.beacon_detection.controllers;
 import android.app.ActivityManager;
 import android.app.Application;
 import android.content.Context;
+import android.os.Environment;
+
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.Locale;
 
 /**
  * Helper class used on fragments and activities for get the Service status without creating it wtice
@@ -17,5 +23,24 @@ public final class Helpers {
             }
         }
         return false;
+    }
+
+    public static boolean writeToFile(String filename, String csv, Context ctx) {
+        try {
+            File root = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath(), "Collected data");
+            if (!root.exists()) {
+                //noinspection ResultOfMethodCallIgnored
+                root.mkdirs();
+            }
+            File file = new File(root, String.format(Locale.getDefault(),"%s_%d.csv", filename, System.currentTimeMillis()));
+            FileWriter writer = new FileWriter(file);
+            writer.append(csv);
+            writer.flush();
+            writer.close();
+            return true;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 }

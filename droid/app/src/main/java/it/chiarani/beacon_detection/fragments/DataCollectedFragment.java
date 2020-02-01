@@ -20,12 +20,15 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.reactivex.Completable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.schedulers.Schedulers;
 import it.chiarani.beacon_detection.BeaconDetectionApp;
 import it.chiarani.beacon_detection.R;
 import it.chiarani.beacon_detection.adapters.BeaconDataAdapter;
+import it.chiarani.beacon_detection.adapters.FragmentCallback;
+import it.chiarani.beacon_detection.controllers.FragmentCallbackType;
 import it.chiarani.beacon_detection.controllers.Helpers;
 import it.chiarani.beacon_detection.databinding.FragmentDataCollectedBinding;
 import it.chiarani.beacon_detection.db.AppDatabase;
@@ -36,14 +39,15 @@ import it.chiarani.beacon_detection.services.BeaconDiscoverService;
 /**
  * Modal for view real-time data collected
  */
-public class DataCollectedFragment extends BottomSheetDialogFragment {
+public class DataCollectedFragment extends BottomSheetDialogFragment  {
 
     private FragmentDataCollectedBinding binding;
-
+    private FragmentCallback callback;
     private BeaconDataAdapter adapterTags;
     private List<BeaconData> beaconList = new ArrayList<>();
     private ArrayList<String> filterAddr = new ArrayList<>(); // MAC address filters
     private final CompositeDisposable mDisposable = new CompositeDisposable();
+    private AppDatabase appDatabase;
 
     public DataCollectedFragment(List<String> filterAddr) {
         this.filterAddr.addAll(filterAddr);
@@ -62,14 +66,8 @@ public class DataCollectedFragment extends BottomSheetDialogFragment {
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_data_collected, container, false);
         View view = binding.getRoot();
 
-        if (Helpers.isMyServiceRunning(BeaconDataCollectorService.class, getActivity())) {
-            // service already running
-            Toast.makeText(getActivity().getApplicationContext(), "Data collection service already in execution.", Toast.LENGTH_SHORT).show();
-        } else {
-            startBeaconDataCollectorService();
-        }
 
-        AppDatabase appDatabase = ((BeaconDetectionApp)getActivity().getApplication()).getRepository().getDatabase();
+        appDatabase = ((BeaconDetectionApp)getActivity().getApplication()).getRepository().getDatabase();
 
         // Get realtime collected data
         mDisposable.add(
@@ -110,6 +108,7 @@ public class DataCollectedFragment extends BottomSheetDialogFragment {
     }
 
     private void startBeaconDataCollectorService () {
+
         Intent beaconDiscoveryService = new Intent(getActivity(), BeaconDataCollectorService.class);
         beaconDiscoveryService.putStringArrayListExtra("AVAILABLEADRESSES", this.filterAddr);
         beaconDiscoveryService.setAction(BeaconDiscoverService.ACTIONS.START.toString());

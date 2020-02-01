@@ -157,16 +157,15 @@
                 style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
+                android:layout_marginTop="20dp"
                 android:padding="10dp"
                 android:text="Export Data"
                 android:visibility="invisible"
                 app:cornerRadius="50dp"
                 app:icon="@drawable/ic_export"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.503"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/activity_main_btn_collect_data" />
+                app:layout_constraintTop_toBottomOf="@+id/activity_main_btn_stop_data" />
 
             <TextView
                 android:id="@+id/activity_main_txt_running_data"
@@ -175,7 +174,6 @@
                 android:layout_marginLeft="16dp"
                 android:layout_marginTop="32dp"
                 android:fontFamily="@font/os_bold"
-
                 android:visibility="invisible"
                 android:text="A data collection service is running now"
                 android:textColor="#000000"
@@ -190,16 +188,16 @@
                 style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="40dp"
-                android:padding="10dp"
+                android:layout_marginTop="20dp"
 
-                android:visibility="invisible"
+                android:padding="10dp"
                 android:text="STOP service"
+                android:visibility="invisible"
                 app:cornerRadius="50dp"
                 app:icon="@drawable/ic_stop"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/activity_main_btn_view_raw_data"
-                app:layout_constraintTop_toBottomOf="@+id/activity_main_txt_next_options" />
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/activity_main_btn_view_raw_data" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/activity_main_btn_view_raw_data"
@@ -208,13 +206,12 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="40dp"
 
-                android:layout_marginEnd="4dp"
                 android:padding="10dp"
                 android:text="View Live Raw"
                 android:visibility="invisible"
                 app:cornerRadius="50dp"
                 app:icon="@drawable/ic_data"
-                app:layout_constraintEnd_toStartOf="@+id/activity_main_btn_stop_data"
+                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/activity_main_txt_next_options" />
 
