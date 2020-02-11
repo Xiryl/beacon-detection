@@ -119,8 +119,21 @@ public class MainActivity extends AppCompatActivity implements FragmentCallback 
             showServiceActions();
         }
         else {
-            hideServiceActions();
-            showCollectActions();
+            appDatabase.customCSVRowDao().getAsList()
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .take(1)
+                    .subscribe( entities -> {
+                        if(entities != null && entities.size() == 0) {
+                            hideServiceActions();
+                            showCollectActions();
+                        }
+
+                        hideCollectActions();
+                        showServiceActions();
+
+                    });
+
         }
         super.onResume();
     }
