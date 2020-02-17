@@ -18,6 +18,9 @@ public interface BeaconDataDao {
     @Insert
     void insert(BeaconDataEntity beaconDataEntity);
 
+    @Insert
+    void insertAsList(List<BeaconDataEntity> beaconDataEntity);
+
     @Query("SELECT * FROM beaconsData")
     Flowable<List<BeaconDataEntity>> getAsList();
 
