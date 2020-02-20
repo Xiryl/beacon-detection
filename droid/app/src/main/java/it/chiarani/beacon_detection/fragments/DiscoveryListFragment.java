@@ -1,8 +1,5 @@
 package it.chiarani.beacon_detection.fragments;
 
-import android.app.ActivityManager;
-import android.content.Context;
-import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -22,16 +19,12 @@ import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.schedulers.Schedulers;
 import it.chiarani.beacon_detection.BeaconDetectionApp;
 import it.chiarani.beacon_detection.R;
-import it.chiarani.beacon_detection.adapters.BeaconDiscoveryAdapter;
 import it.chiarani.beacon_detection.adapters.FragmentCallback;
 import it.chiarani.beacon_detection.adapters.ItemClickListener;
 import it.chiarani.beacon_detection.controllers.FragmentCallbackType;
 import it.chiarani.beacon_detection.controllers.Helpers;
-import it.chiarani.beacon_detection.controllers.ScannerController;
 import it.chiarani.beacon_detection.databinding.FragmentDiscoveryListBinding;
 import it.chiarani.beacon_detection.db.AppDatabase;
-import it.chiarani.beacon_detection.models.BeaconDevice;
-import it.chiarani.beacon_detection.services.BeaconDataCollectorService;
 
 
 /**
@@ -42,9 +35,6 @@ public class DiscoveryListFragment extends BottomSheetDialogFragment implements 
 
     private FragmentDiscoveryListBinding binding;
 
-
-    private BeaconDiscoveryAdapter adapterTags;
-    private List<BeaconDevice> beaconList = new ArrayList<>();
     private List<String> filterAddr = new ArrayList<>(); // filter MAC address
     private final CompositeDisposable mDisposable = new CompositeDisposable();
     private FragmentCallback callback;
@@ -66,30 +56,7 @@ public class DiscoveryListFragment extends BottomSheetDialogFragment implements 
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_discovery_list, container, false);
         View view = binding.getRoot();
 
-        if(Helpers.isMyServiceRunning(BeaconDataCollectorService.class, getActivity())) {
 
-            callback.onFragmentCallback(1, FragmentCallbackType.SERVICE_ALREADY_RUNNING, null);
-            this.dismiss();
-            return view;
-        }
-
-        AppDatabase appDatabase = ((BeaconDetectionApp)getActivity().getApplication()).getRepository().getDatabase();
-
-        mDisposable.add(
-            appDatabase.beaconDeviceDao().getAsList()
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe( entities -> {
-                    if(entities == null && entities.size() == 0) {
-                        return;
-                    }
-                    beaconList.clear();
-                    beaconList.addAll(entities);
-                    adapterTags.notifyDataSetChanged();
-                }, throwable -> {
-                    // err
-                })
-        );
 
         setRecyclerViewBinding();
 
@@ -104,13 +71,10 @@ public class DiscoveryListFragment extends BottomSheetDialogFragment implements 
 
         binding.fragmentDiscoveryListRv.setLayoutManager(linearLayoutManagerTags);
 
-        adapterTags = new BeaconDiscoveryAdapter(beaconList, this::onItemClick);
-        binding.fragmentDiscoveryListRv.setAdapter(adapterTags);
     }
 
     private void startCollectingFragment() {
         // set the duration of the scan
-        ScannerController.setCollectDataDuration(Long.parseLong(binding.fragmentDiscoveryListEditextSessionDuration.getText().toString()));
 
         // callback to activity
         callback.onFragmentCallback(1, FragmentCallbackType.START_COLLECT_SERVICE, filterAddr);
@@ -130,11 +94,7 @@ public class DiscoveryListFragment extends BottomSheetDialogFragment implements 
      */
     @Override
     public void onItemClick(int position) {
-        if(filterAddr.contains(beaconList.get(position).getAddress())) {
-            this.filterAddr.remove(beaconList.get(position).getAddress());
-        } else {
-            this.filterAddr.add(beaconList.get(position).getAddress());
-        }
+
     }
 
 }

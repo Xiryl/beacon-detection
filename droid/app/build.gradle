@@ -65,4 +65,10 @@ dependencies {
     // Preferences android x
     implementation 'androidx.preference:preference:1.1.0'
 
+    // https://github.com/NordicSemiconductor/Android-Scanner-Compat-Library
+    implementation 'no.nordicsemi.android.support.v18:scanner:1.4.2'
+
+    // thingy library
+    implementation project(path: ':thingylib')
+
 }

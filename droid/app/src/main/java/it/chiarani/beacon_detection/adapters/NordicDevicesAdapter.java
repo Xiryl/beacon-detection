@@ -11,22 +11,23 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.List;
 
 import it.chiarani.beacon_detection.R;
-import it.chiarani.beacon_detection.models.BeaconDevice;
+import it.chiarani.beacon_detection.db.entities.NordicDeviceEntity;
+import it.chiarani.beacon_detection.models.NordicDevice;
 
-public class BeaconAdapter  extends RecyclerView.Adapter<BeaconAdapter.ViewHolder> {
+public class NordicDevicesAdapter extends RecyclerView.Adapter<NordicDevicesAdapter.ViewHolder> {
 
-    private List<BeaconDevice> mItems;
+    private List<NordicDeviceEntity> mItems;
 
-    public BeaconAdapter(List<BeaconDevice> items) {
+    public NordicDevicesAdapter(List<NordicDeviceEntity> items) {
         this.mItems = items;
     }
 
     @NonNull
     @Override
-    public BeaconAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public NordicDevicesAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_beacon, parent, false);
 
-        return new BeaconAdapter.ViewHolder(view);
+        return new NordicDevicesAdapter.ViewHolder(view);
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
@@ -47,17 +48,14 @@ public class BeaconAdapter  extends RecyclerView.Adapter<BeaconAdapter.ViewHolde
 
 
     @Override
-    public void onBindViewHolder(@NonNull BeaconAdapter.ViewHolder holder, int position) {
-        holder.txtName.setText(mItems.get(position).getAddress());
-        holder.txtInfo.setText("RSSI: " +mItems.get(position).getRssi()+", Distance: ~" + String.format("%.2f", mItems.get(position).getDistance())   + "mt");
-        holder.minor.setText(mItems.get(position).getType() + "");
-        holder.major.setText(mItems.get(position).getId2() + "");
+    public void onBindViewHolder(@NonNull NordicDevicesAdapter.ViewHolder holder, int position) {
+        holder.txtName.setText(mItems.get(position).getName());
+        holder.txtInfo.setText("RSSI: " +mItems.get(position).getRssi());
+        holder.major.setText(mItems.get(position).getAddress() + "");
     }
-
 
     @Override
     public int getItemCount() {
         return this.mItems.size();
     }
-
 }

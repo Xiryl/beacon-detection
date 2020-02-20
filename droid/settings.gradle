@@ -1,2 +1,6 @@
 include ':app'
 rootProject.name='beacon-detection'
+
+// tingy library for nordic commonuication
+// Doc: https://github.com/NordicSemiconductor/Android-Nordic-Thingy/tree/master/thingylib
+include ':thingylib'

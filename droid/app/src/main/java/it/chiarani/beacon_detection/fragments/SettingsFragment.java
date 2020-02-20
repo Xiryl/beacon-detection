@@ -1,6 +1,5 @@
 package it.chiarani.beacon_detection.fragments;
 
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,7 +12,6 @@ import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 
 import it.chiarani.beacon_detection.R;
-import it.chiarani.beacon_detection.controllers.ScannerController;
 
 /**
  * Settings fragment modal
@@ -48,11 +46,10 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Prefer
 
         if (preference.getKey().equals("pref_key_discovery_time")) {
             long x = Long.parseLong(newValue.toString());
-            ScannerController.setScanTime(x);
+
             mDiscoveryTime.setSummary("Actual:" + x);
         } else if (preference.getKey().equals("pref_key_discovery_frequency")) {
             long x = Long.parseLong(newValue.toString());
-            ScannerController.setScanFrequencyPeriod(x);
             mDiscoveryFrequency.setSummary("Actual:" + x);
         }
 
