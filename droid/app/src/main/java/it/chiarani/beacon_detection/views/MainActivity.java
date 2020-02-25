@@ -2,6 +2,8 @@ package it.chiarani.beacon_detection.views;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothGatt;
+import android.bluetooth.BluetoothGattCallback;
 import android.bluetooth.BluetoothManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -61,9 +63,7 @@ public class MainActivity extends AppCompatActivity implements ThingySdkManager.
     private List<NordicDeviceEntity> nordicScannedDevices = new ArrayList<>();
     private BaseThingyService.BaseThingyBinder mBinder;
 
-
-    private BluetoothAdapter mBluetoothAdapter;
-
+    BluetoothGatt gatt;
     @Override
     protected void onStart() {
         super.onStart();
@@ -95,27 +95,8 @@ public class MainActivity extends AppCompatActivity implements ThingySdkManager.
         // get sdk
         thingySdkManager = ThingySdkManager.getInstance();
 
-
-        final BluetoothManager bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
-        mBluetoothAdapter = bluetoothManager.getAdapter();
-
-        BTScanStart();
     }
 
-    private void BTScanStart() {
-        if (mBluetoothAdapter == null) {
-            System.out.println("Bluetooth NOT supported. Aborting.");
-            return;
-        } else {
-            if (mBluetoothAdapter.isEnabled()) {
-                System.out.println("Bluetooth is enabled...");
-
-                // Starting the device discovery
-                mBluetoothAdapter.startLeScan(mLeScanCallback);
-
-            }
-        }
-    }
 
     // Device scan callback.
     private BluetoothAdapter.LeScanCallback mLeScanCallback = new BluetoothAdapter.LeScanCallback() {
@@ -187,13 +168,16 @@ public class MainActivity extends AppCompatActivity implements ThingySdkManager.
         scanner.startScan(filters, scanSettings, scanCallback);
     }
 
+    ScanResult x;
     private final ScanCallback scanCallback = new ScanCallback() {
         @Override
         public void onBatchScanResults(@NonNull List<ScanResult> results) {
             super.onBatchScanResults(results);
 
             for(ScanResult result : results) {
-                //thingySdkManager.connectToThingy(getApplicationContext(), result.getDevice(), BaseTService.class);
+                if(x == null) {
+                    thingySdkManager.connectToThingy(getApplicationContext(), result.getDevice(), BaseTService.class);
+                }
             }
         }
     };
@@ -248,6 +232,11 @@ public class MainActivity extends AppCompatActivity implements ThingySdkManager.
             thingySdkManager.enableBatteryLevelNotifications(device, true);
 
             thingySdkManager.enableMotionNotifications(device, true);
+
+
+            thingySdkManager.setMotionProcessingFrequency(device, 1);
+
+            gatt = device.connectGatt(getApplicationContext(), true, gattCallback);
         }
 
         @Override
@@ -284,9 +273,8 @@ public class MainActivity extends AppCompatActivity implements ThingySdkManager.
         public void onButtonStateChangedEvent(BluetoothDevice bluetoothDevice, int buttonState) {
             int x = 1;
 
-            Intent intent = new Intent();
-            BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-            short rssi = intent.getShortExtra(BluetoothDevice.EXTRA_RSSI, (short) 0);
+
+            gatt.readRemoteRssi();
 
         }
 
@@ -312,7 +300,9 @@ public class MainActivity extends AppCompatActivity implements ThingySdkManager.
 
         @Override
         public void onAccelerometerValueChangedEvent(BluetoothDevice bluetoothDevice, float x, float y, float z) {
+            int e3w = 1;
 
+            gatt.readRemoteRssi();
         }
 
         @Override
@@ -356,15 +346,10 @@ public class MainActivity extends AppCompatActivity implements ThingySdkManager.
         }
     };
 
-
-    private final BroadcastReceiver BroadcastReceiver = new BroadcastReceiver(){
+    BluetoothGattCallback gattCallback = new BluetoothGattCallback() {
         @Override
-        public void onReceive(Context context, Intent intent) {
-            String mIntentAction = intent.getAction();
-            if(BluetoothDevice.ACTION_ACL_CONNECTED.equals(mIntentAction)) {
-                int RSSI = intent.getShortExtra(BluetoothDevice.EXTRA_RSSI,Short.MIN_VALUE);
-                String mDeviceName = intent.getStringExtra(BluetoothDevice.EXTRA_NAME);
-            }
+        public void onReadRemoteRssi(BluetoothGatt gatt, int rssi, int status) {
+            Log.d("gattCallback", "Rssi:" + rssi);
         }
     };
 
