@@ -68,7 +68,6 @@ public class NordicDeviceDetailFragment extends BottomSheetDialogFragment implem
         setRecyclerViewBinding();
 
         // onclick handler
-        binding.fragmentNordicDeviceBtnCollectData.setOnClickListener( v -> startCollectingFragment());
         return view;
     }
 
