@@ -60,6 +60,7 @@ public class NordicDevicesAdapter extends RecyclerView.Adapter<NordicDevicesAdap
         holder.txtName.setText(mItems.get(position).getName());
         holder.txtInfo.setText("RSSI: " +mItems.get(position).getRssi());
         holder.major.setText(mItems.get(position).getAddress() + "");
+        holder.minor.setText(mItems.get(position).getNordicEvents().size() + " prop");
     }
 
     @Override

@@ -1,8 +1,10 @@
 package it.chiarani.beacon_detection.views;
 
+import android.app.AlertDialog;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCallback;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.ParcelUuid;
@@ -104,6 +106,21 @@ public class MainActivity extends AppCompatActivity implements ThingySdkManager.
             }
         });
 
+
+        mDisposable.add(
+            appDatabase.nordicDeviceDao().getAsList()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe( entities -> {
+                    if(entities != null) {
+                        nordicDeviceEntityList.clear();
+                        nordicDeviceEntityList.addAll(entities);
+                        scannedDeviceAdapter.notifyDataSetChanged();
+                        binding.activityMainTxtScan.setText(String.format("%s LE devices from db", nordicDeviceEntityList.size()));
+                    }
+                }, throwable -> Toast.makeText(this, "Opps, something goes wrong :(", Toast.LENGTH_LONG).show())
+        );
+
     }
 
 
@@ -166,6 +183,29 @@ public class MainActivity extends AppCompatActivity implements ThingySdkManager.
 
     private void startBLEScan() {
 
+
+        if(nordicDeviceEntityList.size() > 0) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setMessage("This will override saved devices")
+                    .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            bleScan();
+                        }
+                    })
+                    .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+
+                            Toast.makeText(MainActivity.this, "cancelled.", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+            // Create the AlertDialog object and return it
+            builder.create().show();
+        }
+
+
+    }
+
+    private void bleScan() {
         // set scan
         ScanSettings scanSettings = new ScanSettings.Builder()
                 .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
@@ -223,9 +263,7 @@ public class MainActivity extends AppCompatActivity implements ThingySdkManager.
                     events.add(NordicEvents.accelerometerValueChanged);
                     en.setNordicEvents(events);
                     scanResultList.put(result.getDevice().getAddress(), result);
-                    nordicDeviceEntityList.add(en);
                     mAppExecutors.diskIO().execute(() -> appDatabase.nordicDeviceDao().insert(en));
-                    scannedDeviceAdapter.notifyDataSetChanged();
                 }
             }
         }
