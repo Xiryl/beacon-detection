@@ -28,6 +28,13 @@ public interface NordicDeviceDao {
      * Return all devices as list
      * @return
      */
+    @Insert
+    void insertAsList(List<NordicDeviceEntity> nordicDeviceEntityList);
+
+    /**
+     * Return all devices as list
+     * @return
+     */
     @Query("SELECT * FROM NordicDeviceEntity")
     Flowable<List<NordicDeviceEntity>> getAsList();
 

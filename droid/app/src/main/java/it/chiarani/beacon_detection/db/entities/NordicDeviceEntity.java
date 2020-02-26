@@ -6,9 +6,11 @@ import androidx.room.PrimaryKey;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 import it.chiarani.beacon_detection.models.NordicDevice;
+import it.chiarani.beacon_detection.models.NordicEvents;
 
 /**
  * Entity for LE scanned nordic devices
@@ -23,6 +25,7 @@ public class NordicDeviceEntity implements NordicDevice {
     private String name;
     private String timestamp;
     private String type;
+    private List<NordicEvents> nordicEvents;
 
     /**
      * New nordic device obj
@@ -91,5 +94,15 @@ public class NordicDeviceEntity implements NordicDevice {
     @Override
     public void setType(String type) {
         this.type = type;
+    }
+
+    @Override
+    public List<NordicEvents> getNordicEvents() {
+        return nordicEvents;
+    }
+
+    @Override
+    public void setNordicEvents(List<NordicEvents> nordicEvents) {
+        this.nordicEvents = nordicEvents;
     }
 }

@@ -1,20 +1,15 @@
 package it.chiarani.beacon_detection.views;
 
-import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCallback;
-import android.bluetooth.BluetoothManager;
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.os.ParcelUuid;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.TextView;
+import android.view.View;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -24,6 +19,8 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -32,11 +29,15 @@ import io.reactivex.schedulers.Schedulers;
 import it.chiarani.beacon_detection.AppExecutors;
 import it.chiarani.beacon_detection.BeaconDetectionApp;
 import it.chiarani.beacon_detection.R;
+import it.chiarani.beacon_detection.adapters.ItemClickListener;
 import it.chiarani.beacon_detection.adapters.NordicDevicesAdapter;
 import it.chiarani.beacon_detection.databinding.ActivityMainBinding;
 import it.chiarani.beacon_detection.db.AppDatabase;
 import it.chiarani.beacon_detection.db.entities.NordicDeviceEntity;
 import it.chiarani.beacon_detection.fragments.BottomNavigationDrawerFragment;
+import it.chiarani.beacon_detection.fragments.NordicDeviceDetailFragment;
+import it.chiarani.beacon_detection.models.NordicDevice;
+import it.chiarani.beacon_detection.models.NordicEvents;
 import it.chiarani.beacon_detection.services.BaseTService;
 import it.chiarani.beacon_detection.utils.PermissionsUtils;
 import no.nordicsemi.android.support.v18.scanner.BluetoothLeScannerCompat;
@@ -50,7 +51,7 @@ import no.nordicsemi.android.thingylib.ThingyListenerHelper;
 import no.nordicsemi.android.thingylib.ThingySdkManager;
 import no.nordicsemi.android.thingylib.utils.ThingyUtils;
 
-public class MainActivity extends AppCompatActivity implements ThingySdkManager.ServiceConnectionListener {
+public class MainActivity extends AppCompatActivity implements ThingySdkManager.ServiceConnectionListener, ItemClickListener {
 
     private ActivityMainBinding binding;
 
@@ -60,10 +61,11 @@ public class MainActivity extends AppCompatActivity implements ThingySdkManager.
     private AppExecutors mAppExecutors;
     private ThingySdkManager thingySdkManager;
     private NordicDevicesAdapter scannedDeviceAdapter;
-    private List<NordicDeviceEntity> nordicScannedDevices = new ArrayList<>();
+    private HashMap<String, ScanResult> scanResultList = new HashMap<>();
+    private List<NordicDeviceEntity> nordicDeviceEntityList = new ArrayList<>();
     private BaseThingyService.BaseThingyBinder mBinder;
-
     BluetoothGatt gatt;
+
     @Override
     protected void onStart() {
         super.onStart();
@@ -95,15 +97,26 @@ public class MainActivity extends AppCompatActivity implements ThingySdkManager.
         // get sdk
         thingySdkManager = ThingySdkManager.getInstance();
 
+        binding.fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                viewDatabase();
+            }
+        });
+
     }
 
 
-    // Device scan callback.
-    private BluetoothAdapter.LeScanCallback mLeScanCallback = new BluetoothAdapter.LeScanCallback() {
-        public void onLeScan(final BluetoothDevice device, final int rssi, byte[] scanRecord) {
-            Log.d("TAG123123", "Rssi:"+ rssi + " Dev:"+ device.getAddress());
-        }
-    };
+    void viewDatabase() {
+        mDisposable.add(
+                appDatabase.nordicDeviceDao().getAsList()
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe( entities -> {
+                            int x = 1;
+                        }, throwable -> Toast.makeText(this, "Error during scan UI", Toast.LENGTH_LONG).show())
+        );
+    }
 
 
     @Override
@@ -152,6 +165,7 @@ public class MainActivity extends AppCompatActivity implements ThingySdkManager.
     }
 
     private void startBLEScan() {
+
         // set scan
         ScanSettings scanSettings = new ScanSettings.Builder()
                 .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
@@ -165,18 +179,53 @@ public class MainActivity extends AppCompatActivity implements ThingySdkManager.
 
         // start scan, this will trigger the scanCallback
         BluetoothLeScannerCompat scanner = BluetoothLeScannerCompat.getScanner();
-        scanner.startScan(filters, scanSettings, scanCallback);
+        try {
+            scanner.startScan(filters, scanSettings, scanCallback);
+        }
+        catch (Exception ex) {
+            Toast.makeText(this, "Oops. Qualcosa è andato storto. Il bluetooth è acceso?", Toast.LENGTH_LONG).show();
+            return;
+        }
+
+
+
+        new CountDownTimer(10000, 1000) {
+
+            int counter = 10000;
+            public void onTick(long millisUntilFinished) {
+                binding.activityMainTxtScan.setText(String.format("Found %s LE devices", scanResultList.size()));
+                binding.activityMainTxtScanTimer.setVisibility(View.VISIBLE);
+                binding.activityMainTxtScanTimer.setText(String.format("Remaining %s seconds.", counter / 1000));
+                counter -= 1000;
+            }
+
+            public void onFinish() {
+                binding.activityMainTxtScanTimer.setVisibility(View.INVISIBLE);
+                scanner.stopScan(scanCallback);
+                Toast.makeText(MainActivity.this, "LE scanner end.", Toast.LENGTH_SHORT).show();
+            }
+        }.start();
+
+        Toast.makeText(MainActivity.this, "LE scanner start.", Toast.LENGTH_SHORT).show();
     }
 
-    ScanResult x;
     private final ScanCallback scanCallback = new ScanCallback() {
         @Override
         public void onBatchScanResults(@NonNull List<ScanResult> results) {
             super.onBatchScanResults(results);
-
             for(ScanResult result : results) {
-                if(x == null) {
-                    thingySdkManager.connectToThingy(getApplicationContext(), result.getDevice(), BaseTService.class);
+
+                if(!scanResultList.containsKey(result.getDevice().getAddress())){
+                    NordicDeviceEntity en = new NordicDeviceEntity(result.getDevice().getAddress(), result.getRssi(), result.getDevice().getName());
+                    List<NordicEvents> events = new ArrayList<>();
+                    events.add(NordicEvents.buttonStateChanged);
+                    events.add(NordicEvents.batteryLevelChanged);
+                    events.add(NordicEvents.accelerometerValueChanged);
+                    en.setNordicEvents(events);
+                    scanResultList.put(result.getDevice().getAddress(), result);
+                    nordicDeviceEntityList.add(en);
+                    mAppExecutors.diskIO().execute(() -> appDatabase.nordicDeviceDao().insert(en));
+                    scannedDeviceAdapter.notifyDataSetChanged();
                 }
             }
         }
@@ -186,25 +235,9 @@ public class MainActivity extends AppCompatActivity implements ThingySdkManager.
         LinearLayoutManager linearLayoutManagerTags = new LinearLayoutManager(this);
         linearLayoutManagerTags.setOrientation(RecyclerView.VERTICAL);
         binding.activityMainRvReadings.setLayoutManager(linearLayoutManagerTags);
-        scannedDeviceAdapter = new NordicDevicesAdapter(nordicScannedDevices);
+        scannedDeviceAdapter = new NordicDevicesAdapter(nordicDeviceEntityList, this::onItemClick);
         binding.activityMainRvReadings.setAdapter(scannedDeviceAdapter);
-
-        mDisposable.add(
-                appDatabase.nordicDeviceDao().getAsList()
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe( entities -> {
-                    if(entities != null && entities.size() == 0) {
-                        return;
-                    }
-
-                    nordicScannedDevices.clear();
-                    nordicScannedDevices.addAll(entities);
-                    scannedDeviceAdapter.notifyDataSetChanged();
-                }, throwable -> Toast.makeText(this, "Error during scan UI", Toast.LENGTH_LONG).show())
-        );
     }
-
 
     @Override
     public void onServiceConnected() {
@@ -233,8 +266,7 @@ public class MainActivity extends AppCompatActivity implements ThingySdkManager.
 
             thingySdkManager.enableMotionNotifications(device, true);
 
-
-            thingySdkManager.setMotionProcessingFrequency(device, 1);
+            thingySdkManager.setMotionProcessingFrequency(device, ThingyUtils.MPU_FREQ_MAX_INTERVAL);
 
             gatt = device.connectGatt(getApplicationContext(), true, gattCallback);
         }
@@ -350,9 +382,17 @@ public class MainActivity extends AppCompatActivity implements ThingySdkManager.
         @Override
         public void onReadRemoteRssi(BluetoothGatt gatt, int rssi, int status) {
             Log.d("gattCallback", "Rssi:" + rssi);
+            NordicDeviceEntity entity = new NordicDeviceEntity(gatt.getDevice().getAddress(), rssi, "Nordic:52");
+            mAppExecutors.diskIO().execute(() -> appDatabase.nordicDeviceDao().insert(entity));
+            nordicDeviceEntityList.add(entity);
         }
     };
 
+    @Override
+    public void onItemClick(int position) {
+        NordicDeviceDetailFragment fragment = new NordicDeviceDetailFragment(null, position);
+        fragment.show(getSupportFragmentManager(), "bottom_nav_sheet_dialog");
+    }
 }
 
 

@@ -1,5 +1,7 @@
 package it.chiarani.beacon_detection.models;
 
+import java.util.List;
+
 /**
  * Rappresent a Nordic Device
  */
@@ -23,4 +25,8 @@ public interface NordicDevice {
     String getType();
 
     void setType(String type);
+
+    List<NordicEvents> getNordicEvents();
+
+    void setNordicEvents(List<NordicEvents> nordicEvents);
 }

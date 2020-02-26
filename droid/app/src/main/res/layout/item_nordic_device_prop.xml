@@ -7,13 +7,14 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="10dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp">
+        android:layout_marginStart="6dp"
+        android:layout_marginEnd="6dp">
 
         <androidx.appcompat.widget.AppCompatCheckBox
+            android:enabled="false"
             android:id="@+id/item_discovery_beacon_chbox"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="32dp"
             android:layout_marginStart="4dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -22,7 +23,7 @@
             app:layout_constraintTop_toTopOf="parent"/>
 
         <TextView
-            android:id="@+id/item_discovery_beacon_address"
+            android:id="@+id/item_discovery_beacon_prop"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
@@ -34,21 +35,6 @@
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toEndOf="@+id/item_discovery_beacon_chbox"
             app:layout_constraintTop_toTopOf="parent" />
-
-        <TextView
-            android:id="@+id/item_discovery_beacon_info"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="6dp"
-            android:layout_marginEnd="2dp"
-            android:fontFamily="@font/os_light"
-            android:text="Beacon1"
-            android:textColor="#323536"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toEndOf="@+id/item_discovery_beacon_chbox"
-            app:layout_constraintTop_toBottomOf="@+id/item_discovery_beacon_address" />
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>
