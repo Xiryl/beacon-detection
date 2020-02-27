@@ -58,7 +58,7 @@ public class NordicDevicesAdapter extends RecyclerView.Adapter<NordicDevicesAdap
     @Override
     public void onBindViewHolder(@NonNull NordicDevicesAdapter.ViewHolder holder, int position) {
         holder.txtName.setText(mItems.get(position).getName());
-        holder.txtInfo.setText("Conn: " + mItems.get(position).isConnected() + ", RSSI: " +mItems.get(position).getRssi());
+        holder.txtInfo.setText("Connected: " + mItems.get(position).isConnected());
         holder.major.setText(mItems.get(position).getAddress() + "");
         holder.minor.setText(mItems.get(position).getNordicEvents().size() + " prop");
     }

@@ -62,14 +62,12 @@ public class ConnectNordicAdapter extends RecyclerView.Adapter<ConnectNordicAdap
         holder.txtPrimary.setText(mItems.get(position).getName() + ": " + mItems.get(position).getAddress());
 
         if(mItems.get(position).isConnected()) {
-            holder.txtSecondary.setText("Conn status: CONNECTED");
-            holder.cl.setBackgroundColor(Color.GREEN);
-
+            holder.txtSecondary.setText("Conn. status: CONNECTED");
+            holder.cl.setBackgroundResource(R.drawable.background_red_filled);
         } else {
-            holder.txtSecondary.setText("Conn status: DISCONNECTED");
-            holder.cl.setBackgroundColor(Color.BLUE);
+            holder.txtSecondary.setText("Conn. status: DISCONNECTED");
+            holder.cl.setBackgroundResource(R.drawable.background_blue_filled);
         }
-
     }
 
     @Override

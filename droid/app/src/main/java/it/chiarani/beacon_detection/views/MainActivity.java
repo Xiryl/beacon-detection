@@ -52,6 +52,7 @@ import no.nordicsemi.android.support.v18.scanner.ScanFilter;
 import no.nordicsemi.android.support.v18.scanner.ScanResult;
 import no.nordicsemi.android.support.v18.scanner.ScanSettings;
 import no.nordicsemi.android.thingylib.BaseThingyService;
+import no.nordicsemi.android.thingylib.ThingyConnection;
 import no.nordicsemi.android.thingylib.ThingyListener;
 import no.nordicsemi.android.thingylib.ThingyListenerHelper;
 import no.nordicsemi.android.thingylib.ThingySdkManager;
@@ -302,9 +303,8 @@ public class MainActivity extends AppCompatActivity implements ThingySdkManager.
     }
 
     private void startDataCollection() {
-
         for (BluetoothDevice dev : thingySdkManager.getConnectedDevices()){
-
+            thingySdkManager.setConstantLedMode(dev, 255, 1, 1);
             ThingyListenerHelper.registerThingyListener(getApplicationContext(), mThingyListener, dev);
             //events
             thingySdkManager.enableMotionNotifications(dev, true);
@@ -330,56 +330,7 @@ public class MainActivity extends AppCompatActivity implements ThingySdkManager.
             thingySdkManager.enableUiNotifications(dev, true);
             thingySdkManager.setMotionProcessingFrequency(dev, ThingyUtils.MPU_FREQ_MAX_INTERVAL);
             gatt = dev.connectGatt(getApplicationContext(), true, gattCallback);
-
-           /* thingySdkManager.enableMotionNotifications(dev, true);
-            thingySdkManager.enableAirQualityNotifications(dev, true);
-            thingySdkManager.enableBatteryLevelNotifications(dev, true);
-            thingySdkManager.enableButtonStateNotification(dev, true);
-            thingySdkManager.enableColorNotifications(dev, true);
-            thingySdkManager.enableEnvironmentNotifications(dev, true);
-            thingySdkManager.enableEulerNotifications(dev, true);
-            thingySdkManager.enableGravityVectorNotifications(dev, true);
-            thingySdkManager.enableHeadingNotifications(dev, true);
-            thingySdkManager.enableHumidityNotifications(dev, true);
-            thingySdkManager.enableOrientationNotifications(dev, true);
-            thingySdkManager.enablePedometerNotifications(dev, true);
-            thingySdkManager.enablePressureNotifications(dev, true);
-            thingySdkManager.enableQuaternionNotifications(dev, true);
-            thingySdkManager.enableRawDataNotifications(dev, true);
-            thingySdkManager.enableRotationMatrixNotifications(dev, true);
-            thingySdkManager.enableSoundNotifications(dev, true);
-            thingySdkManager.enableSpeakerStatusNotifications(dev, true);
-            thingySdkManager.enableTapNotifications(dev, true);
-            thingySdkManager.enableThingyMicrophone(dev, true);
-            thingySdkManager.enableUiNotifications(dev, true);*/
-
-            // gatt = dev.connectGatt(getApplicationContext(), true, gattCallback);
-
-           /* //BATTERY STATE
-            thingySdkManager.enableBatteryLevelNotifications(dev, true);
-
-            thingySdkManager.enableMotionNotifications(dev, true);
-
-            thingySdkManager.setMotionProcessingFrequency(dev, ThingyUtils.MPU_FREQ_MAX_INTERVAL);
-
-            gatt = dev.connectGatt(getApplicationContext(), true, gattCallback);*/
         }
-
-        /*
-        for(BluetoothDevice dev : scanResultList.values()) {
-            //BLE STATE
-            thingySdkManager.enableButtonStateNotification(dev, true);
-
-
-            //BATTERY STATE
-            thingySdkManager.enableBatteryLevelNotifications(dev, true);
-
-            thingySdkManager.enableMotionNotifications(dev, true);
-
-            thingySdkManager.setMotionProcessingFrequency(dev, ThingyUtils.MPU_FREQ_MAX_INTERVAL);
-
-            gatt = dev.connectGatt(getApplicationContext(), true, gattCallback);
-        }*/
 
     }
 
@@ -408,6 +359,7 @@ public class MainActivity extends AppCompatActivity implements ThingySdkManager.
         public void onBatteryLevelChanged(BluetoothDevice bluetoothDevice, int batteryLevel) {
             Log.d("Callback", "1 ok");
             collectedData.put("onBatteryLevelChanged", batteryLevel + "");
+
         }
 
         @Override
