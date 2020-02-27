@@ -26,6 +26,7 @@ public class NordicDeviceEntity implements NordicDevice {
     private String timestamp;
     private String type;
     private List<NordicEvents> nordicEvents;
+    private boolean isConnected;
 
     /**
      * New nordic device obj
@@ -104,5 +105,13 @@ public class NordicDeviceEntity implements NordicDevice {
     @Override
     public void setNordicEvents(List<NordicEvents> nordicEvents) {
         this.nordicEvents = nordicEvents;
+    }
+
+    public boolean isConnected() {
+        return isConnected;
+    }
+
+    public void setConnected(boolean connected) {
+        isConnected = connected;
     }
 }

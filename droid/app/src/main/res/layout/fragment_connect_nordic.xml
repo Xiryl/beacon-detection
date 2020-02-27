@@ -24,7 +24,7 @@
             android:layout_marginLeft="16dp"
             android:layout_marginTop="16dp"
             android:fontFamily="@font/os_bold"
-            android:text="Nordic Device"
+            android:text="Tap on dev. name to connect"
             android:textSize="18sp"
             app:layout_constraintHorizontal_bias="0.503"
             app:layout_constraintLeft_toLeftOf="parent"
@@ -37,7 +37,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:fontFamily="@font/os_regular"
-            android:text="Choose the pros that you want to collect"
+            android:text="Once connected, you can retrive data"
             android:textSize="18sp"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
@@ -60,7 +60,7 @@
             android:layout_marginLeft="16dp"
             android:layout_marginTop="20dp"
             android:fontFamily="@font/os_regular"
-            android:text="Props:"
+            android:text="Nordics:"
             android:textSize="18sp"
             app:layout_constraintHorizontal_bias="0.51"
             app:layout_constraintLeft_toLeftOf="parent"
@@ -68,7 +68,7 @@
             app:layout_constraintTop_toBottomOf="@+id/view" />
 
         <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/fragment_nordic_device_list_rv"
+            android:id="@+id/fragment_connect_nordic_list_rv"
             android:layout_width="match_parent"
             android:layout_height="400dp"
             android:layout_marginTop="16dp"

@@ -29,4 +29,8 @@ public interface NordicDevice {
     List<NordicEvents> getNordicEvents();
 
     void setNordicEvents(List<NordicEvents> nordicEvents);
+
+    boolean isConnected();
+
+    void setConnected(boolean connected);
 }

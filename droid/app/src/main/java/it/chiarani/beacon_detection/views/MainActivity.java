@@ -25,18 +25,21 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 
+import io.reactivex.Completable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.schedulers.Schedulers;
 import it.chiarani.beacon_detection.AppExecutors;
 import it.chiarani.beacon_detection.BeaconDetectionApp;
 import it.chiarani.beacon_detection.R;
+import it.chiarani.beacon_detection.adapters.ConnectNordicAdapter;
 import it.chiarani.beacon_detection.adapters.ItemClickListener;
 import it.chiarani.beacon_detection.adapters.NordicDevicesAdapter;
 import it.chiarani.beacon_detection.databinding.ActivityMainBinding;
 import it.chiarani.beacon_detection.db.AppDatabase;
 import it.chiarani.beacon_detection.db.entities.NordicDeviceEntity;
 import it.chiarani.beacon_detection.fragments.BottomNavigationDrawerFragment;
+import it.chiarani.beacon_detection.fragments.ConnectNordicFragment;
 import it.chiarani.beacon_detection.fragments.NordicDeviceDetailFragment;
 import it.chiarani.beacon_detection.models.NordicDevice;
 import it.chiarani.beacon_detection.models.NordicEvents;
@@ -63,8 +66,9 @@ public class MainActivity extends AppCompatActivity implements ThingySdkManager.
     private AppExecutors mAppExecutors;
     private ThingySdkManager thingySdkManager;
     private NordicDevicesAdapter scannedDeviceAdapter;
-    private HashMap<String, ScanResult> scanResultList = new HashMap<>();
+    private HashMap<String, BluetoothDevice> scanResultList = new HashMap<>();
     private List<NordicDeviceEntity> nordicDeviceEntityList = new ArrayList<>();
+    private List<BluetoothDevice> connDevices = new ArrayList<>();
     private BaseThingyService.BaseThingyBinder mBinder;
     BluetoothGatt gatt;
 
@@ -99,6 +103,7 @@ public class MainActivity extends AppCompatActivity implements ThingySdkManager.
         // get sdk
         thingySdkManager = ThingySdkManager.getInstance();
 
+
         binding.fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -113,25 +118,41 @@ public class MainActivity extends AppCompatActivity implements ThingySdkManager.
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe( entities -> {
                     if(entities != null) {
+
+                        int conn = 0;
+                        for(NordicDeviceEntity en : entities) {
+                            if(en.isConnected()) conn++;
+                        }
+
                         nordicDeviceEntityList.clear();
                         nordicDeviceEntityList.addAll(entities);
                         scannedDeviceAdapter.notifyDataSetChanged();
-                        binding.activityMainTxtScan.setText(String.format("%s LE devices from db", nordicDeviceEntityList.size()));
+                        binding.activityMainTxtScan.setText(String.format("%s LE devices from db, %s conn", nordicDeviceEntityList.size(), conn));
+
                     }
                 }, throwable -> Toast.makeText(this, "Opps, something goes wrong :(", Toast.LENGTH_LONG).show())
         );
 
+        binding.activityMainBtnConnectDevice.setOnClickListener(v -> connectNordic());
+        binding.activityMainBtnCollectData.setOnClickListener( v -> {
+            connDevices = thingySdkManager.getConnectedDevices();
+        });
+
     }
 
+    void connectNordic() {
+        ConnectNordicFragment bottomSheetDialogFragment = new ConnectNordicFragment(scanResultList);
+        bottomSheetDialogFragment.show(getSupportFragmentManager(), "conn_nordic_fragment");
+    }
 
     void viewDatabase() {
         mDisposable.add(
-                appDatabase.nordicDeviceDao().getAsList()
-                        .subscribeOn(Schedulers.io())
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe( entities -> {
-                            int x = 1;
-                        }, throwable -> Toast.makeText(this, "Error during scan UI", Toast.LENGTH_LONG).show())
+            appDatabase.nordicDeviceDao().getAsList()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe( entities -> {
+                    int x = 1;
+                }, throwable -> Toast.makeText(this, "Error during scan UI", Toast.LENGTH_LONG).show())
         );
     }
 
@@ -139,6 +160,7 @@ public class MainActivity extends AppCompatActivity implements ThingySdkManager.
     @Override
     protected void onStop() {
         super.onStop();
+        thingySdkManager.disconnectFromAllThingies();
         thingySdkManager.unbindService(this);
     }
 
@@ -153,7 +175,10 @@ public class MainActivity extends AppCompatActivity implements ThingySdkManager.
         Completable.fromAction(appDatabase.beaconDataDao()::clear)
                 .subscribeOn(Schedulers.io())
                 .subscribe();*/
-
+        Completable.fromAction(appDatabase.nordicDeviceDao()::clear)
+                .subscribeOn(Schedulers.io())
+                .subscribe();
+        thingySdkManager.disconnectFromAllThingies();
         super.onDestroy();
     }
 
@@ -200,9 +225,9 @@ public class MainActivity extends AppCompatActivity implements ThingySdkManager.
                     });
             // Create the AlertDialog object and return it
             builder.create().show();
+        } else {
+            bleScan();
         }
-
-
     }
 
     private void bleScan() {
@@ -262,7 +287,7 @@ public class MainActivity extends AppCompatActivity implements ThingySdkManager.
                     events.add(NordicEvents.batteryLevelChanged);
                     events.add(NordicEvents.accelerometerValueChanged);
                     en.setNordicEvents(events);
-                    scanResultList.put(result.getDevice().getAddress(), result);
+                    scanResultList.put(result.getDevice().getAddress(), result.getDevice());
                     mAppExecutors.diskIO().execute(() -> appDatabase.nordicDeviceDao().insert(en));
                 }
             }
