@@ -29,10 +29,10 @@ public class NordicDeviceEntity implements NordicDevice {
     private boolean isConnected;
 
     /**
-     * New nordic device obj
-     * @param address MAC address
-     * @param rssi RSSI value
-     * @param name BLE device name
+     * Nordic device
+     * @param address
+     * @param rssi
+     * @param name
      */
     public NordicDeviceEntity(String address, int rssi, String name) {
         this.address = address;

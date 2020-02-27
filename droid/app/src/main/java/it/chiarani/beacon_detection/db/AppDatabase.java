@@ -9,20 +9,22 @@ import androidx.room.TypeConverters;
 
 import it.chiarani.beacon_detection.db.dao.NordicDeviceDao;
 import it.chiarani.beacon_detection.db.entities.NordicDeviceEntity;
-import it.chiarani.beacon_detection.models.NordicEvents;
 
 @Database(entities = {NordicDeviceEntity.class}, version = 2, exportSchema = false)
 @TypeConverters({NordicEventsConverter.class})
 public abstract class AppDatabase extends RoomDatabase {
     private static volatile AppDatabase INSTANCE;
 
-    // DAO's
+    /**
+     * Nordic device DAO
+     * @return Nordic device DAO
+     */
     public abstract NordicDeviceDao nordicDeviceDao();
 
     /**
-     * Get a singleton istance
-     * @param context
-     * @return AppDatabase db istance
+     * Singletone istance
+     * @param context ctx
+     * @return AppDatabase istance
      */
     public static AppDatabase getInstance(Context context) {
         if (INSTANCE == null) {

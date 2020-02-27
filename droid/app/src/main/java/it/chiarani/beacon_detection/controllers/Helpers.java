@@ -11,7 +11,7 @@ import java.io.IOException;
 import java.util.Locale;
 
 /**
- * Helper class used on fragments and activities for get the Service status without creating it wtice
+ * Helper class used on fragments and activities for get the Service status without creating it twice
  */
 public final class Helpers {
 

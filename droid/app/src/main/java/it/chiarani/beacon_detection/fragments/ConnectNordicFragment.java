@@ -1,7 +1,6 @@
 package it.chiarani.beacon_detection.fragments;
 
 import android.bluetooth.BluetoothDevice;
-import android.net.wifi.ScanResult;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -25,36 +24,36 @@ import it.chiarani.beacon_detection.AppExecutors;
 import it.chiarani.beacon_detection.BeaconDetectionApp;
 import it.chiarani.beacon_detection.R;
 import it.chiarani.beacon_detection.adapters.ConnectNordicAdapter;
-import it.chiarani.beacon_detection.adapters.FragmentCallback;
 import it.chiarani.beacon_detection.adapters.ItemClickListener;
-import it.chiarani.beacon_detection.adapters.ItemPropsClickListener;
-import it.chiarani.beacon_detection.adapters.NordicDevicesPropsAdapter;
-import it.chiarani.beacon_detection.controllers.FragmentCallbackType;
 import it.chiarani.beacon_detection.databinding.FragmentConnectNordicBinding;
-import it.chiarani.beacon_detection.databinding.FragmentNordicDeviceDetailBinding;
 import it.chiarani.beacon_detection.db.AppDatabase;
 import it.chiarani.beacon_detection.db.entities.NordicDeviceEntity;
-import it.chiarani.beacon_detection.models.NordicEvents;
 import it.chiarani.beacon_detection.services.BaseTService;
 import no.nordicsemi.android.thingylib.BaseThingyService;
 import no.nordicsemi.android.thingylib.ThingyListener;
 import no.nordicsemi.android.thingylib.ThingyListenerHelper;
 import no.nordicsemi.android.thingylib.ThingySdkManager;
+import no.nordicsemi.android.thingylib.utils.ThingyUtils;
 
-
+/**
+ * This fragment handle the connection and disconnection phase
+ */
 public class ConnectNordicFragment extends BottomSheetDialogFragment implements ItemClickListener, ThingySdkManager.ServiceConnectionListener {
 
     private FragmentConnectNordicBinding binding;
-
     private List<NordicDeviceEntity> nordicDeviceEntityList = new ArrayList<>();
     private final CompositeDisposable mDisposable = new CompositeDisposable();
-    private HashMap<String, BluetoothDevice> scanResultList = new HashMap<>();
+    private HashMap<String, BluetoothDevice> scanResultList;
     private AppDatabase appDatabase;
     private AppExecutors mAppExecutors;
     private ConnectNordicAdapter adapter;
     private ThingySdkManager thingySdkManager;
     private BaseThingyService.BaseThingyBinder mBinder;
 
+    /**
+     * This fragment handle the connection and disconnection phase
+     * @param scanResultList the scan result of devices
+     */
     public ConnectNordicFragment(HashMap<String, BluetoothDevice> scanResultList) {
         this.scanResultList = scanResultList;
     }
@@ -69,20 +68,18 @@ public class ConnectNordicFragment extends BottomSheetDialogFragment implements 
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        appDatabase = ((BeaconDetectionApp) this.getActivity().getApplicationContext()).getRepository().getDatabase();
-        mAppExecutors = ((BeaconDetectionApp) this.getActivity().getApplicationContext()).getRepository().getAppExecutors();
-        // Inflate the layout for this fragment with binding
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_connect_nordic, container, false);
         View view = binding.getRoot();
 
+        appDatabase = ((BeaconDetectionApp) this.getActivity().getApplicationContext()).getRepository().getDatabase();
+        mAppExecutors = ((BeaconDetectionApp) this.getActivity().getApplicationContext()).getRepository().getAppExecutors();
 
         thingySdkManager = ThingySdkManager.getInstance();
-
+        mBinder = thingySdkManager.getThingyBinder();
         ThingyListenerHelper.registerThingyListener(getContext(), mThingyListener);
 
         setRecyclerViewBinding();
 
-        // onclick handler
         return view;
     }
 
@@ -92,8 +89,6 @@ public class ConnectNordicFragment extends BottomSheetDialogFragment implements 
     }
 
     private void setRecyclerViewBinding() {
-
-
         LinearLayoutManager linearLayoutManagerTags = new LinearLayoutManager(getActivity());
         linearLayoutManagerTags.setOrientation(RecyclerView.VERTICAL);
 
@@ -111,7 +106,7 @@ public class ConnectNordicFragment extends BottomSheetDialogFragment implements 
                                 nordicDeviceEntityList.addAll(entities);
                                 adapter.notifyDataSetChanged();
                             }
-                        }, throwable -> Toast.makeText(this.getActivity().getApplicationContext(), "Opps, something goes wrong :(", Toast.LENGTH_LONG).show())
+                        }, throwable -> Toast.makeText(getContext(), "Opps, something goes wrong :(", Toast.LENGTH_LONG).show())
         );
     }
 
@@ -119,16 +114,13 @@ public class ConnectNordicFragment extends BottomSheetDialogFragment implements 
     @Override
     public void onDetach() {
         super.onDetach();
+
         mDisposable.dispose(); // prevent memory leak
     }
 
-    /**
-     * For filter the beacons MAC adresses
-     *
-     * @param pos
-     */
     @Override
     public void onItemClick(int pos) {
+        // connect or disconnect device
         if(nordicDeviceEntityList.get(pos).isConnected()){
             if(scanResultList.containsKey(nordicDeviceEntityList.get(pos).getAddress())) {
                 BluetoothDevice dev = scanResultList.get(nordicDeviceEntityList.get(pos).getAddress());
@@ -140,8 +132,6 @@ public class ConnectNordicFragment extends BottomSheetDialogFragment implements 
                 thingySdkManager.connectToThingy(getContext(), dev, BaseTService.class);
             }
         }
-
-
     }
 
     @Override
@@ -170,8 +160,12 @@ public class ConnectNordicFragment extends BottomSheetDialogFragment implements 
                                     }
                                 }
                             }
-                        }, throwable -> Toast.makeText(getActivity().getApplicationContext(), "Opps, something goes wrong :(", Toast.LENGTH_LONG).show())
+                        }, throwable -> Toast.makeText(getContext(), "Opps, something goes wrong :(", Toast.LENGTH_LONG).show())
             );
+
+            for(BluetoothDevice dev : thingySdkManager.getConnectedDevices()) {
+                thingySdkManager.setConstantLedMode(dev, 255, 1, 1);
+            }
         }
 
         @Override

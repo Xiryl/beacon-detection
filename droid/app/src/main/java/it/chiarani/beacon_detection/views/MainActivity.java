@@ -137,6 +137,11 @@ public class MainActivity extends AppCompatActivity implements ThingySdkManager.
 
         binding.activityMainBtnConnectDevice.setOnClickListener(v -> connectNordic());
         binding.activityMainBtnCollectData.setOnClickListener( v -> startDataCollection());
+        binding.activityMainBtnExportData.setOnClickListener( v -> {
+            for(BluetoothDevice device : thingySdkManager.getConnectedDevices()) {
+                thingySdkManager.setConstantLedMode(device, 255, 1, 1);
+            }
+        });
 
     }
 
@@ -304,7 +309,7 @@ public class MainActivity extends AppCompatActivity implements ThingySdkManager.
 
     private void startDataCollection() {
         for (BluetoothDevice dev : thingySdkManager.getConnectedDevices()){
-            thingySdkManager.setConstantLedMode(dev, 255, 1, 1);
+            thingySdkManager.setConstantLedMode(dev, 1, 100, 1);
             ThingyListenerHelper.registerThingyListener(getApplicationContext(), mThingyListener, dev);
             //events
             thingySdkManager.enableMotionNotifications(dev, true);
@@ -496,7 +501,7 @@ public class MainActivity extends AppCompatActivity implements ThingySdkManager.
 
     @Override
     public void onItemClick(int position) {
-        NordicDeviceDetailFragment fragment = new NordicDeviceDetailFragment(null, position);
+        NordicDeviceDetailFragment fragment = new NordicDeviceDetailFragment(position);
         fragment.show(getSupportFragmentManager(), "bottom_nav_sheet_dialog");
     }
 

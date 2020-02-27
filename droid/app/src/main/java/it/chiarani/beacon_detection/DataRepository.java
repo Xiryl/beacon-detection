@@ -24,7 +24,7 @@ public class DataRepository {
         return instance;
     }
 
-    public DataRepository(Context context, AppExecutors appExecutos) {
+    DataRepository(Context context, AppExecutors appExecutos) {
         appDatabase = AppDatabase.getInstance(context);
         this.appExecutors = appExecutos;
     }

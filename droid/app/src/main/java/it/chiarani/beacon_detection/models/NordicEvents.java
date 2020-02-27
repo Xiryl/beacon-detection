@@ -1,8 +1,5 @@
 package it.chiarani.beacon_detection.models;
 
-import androidx.room.Entity;
-import androidx.room.PrimaryKey;
-
 public enum  NordicEvents {
       batteryLevelChanged,
       temperatureValueChanged,

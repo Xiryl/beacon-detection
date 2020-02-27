@@ -21,7 +21,6 @@ public class BaseTService extends BaseThingyService {
         }
     }
 
-
     @Nullable
     @Override
     public BaseThingyBinder onBind(Intent intent) {

@@ -2,8 +2,6 @@ package it.chiarani.beacon_detection;
 
 import android.app.Application;
 
-import it.chiarani.beacon_detection.db.AppDatabase;
-
 public class BeaconDetectionApp extends Application {
 
     private AppExecutors mAppExecutors;

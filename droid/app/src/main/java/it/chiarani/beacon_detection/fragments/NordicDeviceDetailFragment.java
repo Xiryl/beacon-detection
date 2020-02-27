@@ -21,17 +21,15 @@ import io.reactivex.schedulers.Schedulers;
 import it.chiarani.beacon_detection.AppExecutors;
 import it.chiarani.beacon_detection.BeaconDetectionApp;
 import it.chiarani.beacon_detection.R;
-import it.chiarani.beacon_detection.adapters.FragmentCallback;
-import it.chiarani.beacon_detection.adapters.ItemClickListener;
 import it.chiarani.beacon_detection.adapters.ItemPropsClickListener;
 import it.chiarani.beacon_detection.adapters.NordicDevicesPropsAdapter;
-import it.chiarani.beacon_detection.controllers.FragmentCallbackType;
-import it.chiarani.beacon_detection.databinding.FragmentDiscoveryListBinding;
 import it.chiarani.beacon_detection.databinding.FragmentNordicDeviceDetailBinding;
 import it.chiarani.beacon_detection.db.AppDatabase;
 import it.chiarani.beacon_detection.models.NordicEvents;
 
-
+/**
+ * This fragment handle the props and device event selection
+ */
 public class NordicDeviceDetailFragment extends BottomSheetDialogFragment implements ItemPropsClickListener {
 
     private FragmentNordicDeviceDetailBinding binding;
@@ -39,14 +37,15 @@ public class NordicDeviceDetailFragment extends BottomSheetDialogFragment implem
     private final CompositeDisposable mDisposable = new CompositeDisposable();
     private AppDatabase appDatabase;
     private AppExecutors mAppExecutors;
-    private List<String> filterAddr = new ArrayList<>(); // filter MAC address
     private List<NordicEvents> nordicEventsList = new ArrayList<>();
-    private FragmentCallback callback;
     private int deviceNumber;
     private NordicDevicesPropsAdapter adapter;
 
-    public NordicDeviceDetailFragment(FragmentCallback callback, int deviceNumber) {
-        this.callback = callback;
+    /**
+     * This fragment handle the props and device event selection
+     * @param deviceNumber on wich device you want to operate
+     */
+    public NordicDeviceDetailFragment(int deviceNumber) {
         this.deviceNumber = deviceNumber;
     }
 
@@ -58,12 +57,11 @@ public class NordicDeviceDetailFragment extends BottomSheetDialogFragment implem
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        binding = DataBindingUtil.inflate(inflater, R.layout.fragment_nordic_device_detail, container, false);
+        View view = binding.getRoot();
 
         appDatabase = ((BeaconDetectionApp)this.getActivity().getApplicationContext()).getRepository().getDatabase();
         mAppExecutors = ((BeaconDetectionApp)this.getActivity().getApplicationContext()).getRepository().getAppExecutors();
-        // Inflate the layout for this fragment with binding
-        binding = DataBindingUtil.inflate(inflater, R.layout.fragment_nordic_device_detail, container, false);
-        View view = binding.getRoot();
 
         setRecyclerViewBinding();
 
@@ -72,9 +70,6 @@ public class NordicDeviceDetailFragment extends BottomSheetDialogFragment implem
     }
 
     private void setRecyclerViewBinding() {
-
-
-
         LinearLayoutManager linearLayoutManagerTags = new LinearLayoutManager(getActivity());
         linearLayoutManagerTags.setOrientation(RecyclerView.VERTICAL);
 
@@ -93,19 +88,10 @@ public class NordicDeviceDetailFragment extends BottomSheetDialogFragment implem
                                 nordicEventsList.addAll(entities.get(deviceNumber).getNordicEvents());
                                 adapter.notifyDataSetChanged();
                             }
-                        }, throwable -> Toast.makeText(this.getActivity().getApplicationContext(), "Opps, something goes wrong :(", Toast.LENGTH_LONG).show())
+                        }, throwable -> Toast.makeText(getContext(), "Opps, something goes wrong :(", Toast.LENGTH_LONG).show())
         );
 
     }
-
-    private void startCollectingFragment() {
-        // set the duration of the scan
-
-        // callback to activity
-        callback.onFragmentCallback(1, FragmentCallbackType.START_COLLECT_SERVICE, filterAddr);
-        this.dismiss();
-    }
-
 
     @Override
     public void onDetach() {
@@ -113,12 +99,9 @@ public class NordicDeviceDetailFragment extends BottomSheetDialogFragment implem
         mDisposable.dispose(); // prevent memory leak
     }
 
-    /**
-     * For filter the beacons MAC adresses
-     * @param newEvent
-     */
     @Override
     public void onItemClick(NordicEvents newEvent) {
+        // add or remove the props
         mDisposable.add(
                 appDatabase.nordicDeviceDao().getAsList()
                         .take(1)

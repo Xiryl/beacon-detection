@@ -10,7 +10,6 @@ import java.util.List;
 
 import io.reactivex.Flowable;
 import it.chiarani.beacon_detection.db.entities.NordicDeviceEntity;
-import it.chiarani.beacon_detection.models.NordicDevice;
 
 /**
  * Dao for nordic device view entity: {@link it.chiarani.beacon_detection.db.entities.NordicDeviceEntity}
