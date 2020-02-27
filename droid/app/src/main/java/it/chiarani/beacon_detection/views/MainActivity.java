@@ -76,7 +76,7 @@ public class MainActivity extends AppCompatActivity implements ThingySdkManager.
     protected void onStart() {
         super.onStart();
         thingySdkManager.bindService(this, BaseTService.class);
-        ThingyListenerHelper.registerThingyListener(getApplicationContext(), mThingyListener);
+        // ThingyListenerHelper.registerThingyListener(getApplicationContext(), mThingyListener);
     }
 
     @Override
@@ -134,9 +134,7 @@ public class MainActivity extends AppCompatActivity implements ThingySdkManager.
         );
 
         binding.activityMainBtnConnectDevice.setOnClickListener(v -> connectNordic());
-        binding.activityMainBtnCollectData.setOnClickListener( v -> {
-            connDevices = thingySdkManager.getConnectedDevices();
-        });
+        binding.activityMainBtnCollectData.setOnClickListener( v -> startDataCollection());
 
     }
 
@@ -302,9 +300,46 @@ public class MainActivity extends AppCompatActivity implements ThingySdkManager.
         binding.activityMainRvReadings.setAdapter(scannedDeviceAdapter);
     }
 
+    private void startDataCollection() {
+
+        for (BluetoothDevice dev : thingySdkManager.getConnectedDevices()){
+
+            ThingyListenerHelper.registerThingyListener(getApplicationContext(), mThingyListener, dev);
+            thingySdkManager.enableButtonStateNotification(dev, true);
+
+
+
+           /* //BATTERY STATE
+            thingySdkManager.enableBatteryLevelNotifications(dev, true);
+
+            thingySdkManager.enableMotionNotifications(dev, true);
+
+            thingySdkManager.setMotionProcessingFrequency(dev, ThingyUtils.MPU_FREQ_MAX_INTERVAL);
+
+            gatt = dev.connectGatt(getApplicationContext(), true, gattCallback);*/
+        }
+
+        /*
+        for(BluetoothDevice dev : scanResultList.values()) {
+            //BLE STATE
+            thingySdkManager.enableButtonStateNotification(dev, true);
+
+
+            //BATTERY STATE
+            thingySdkManager.enableBatteryLevelNotifications(dev, true);
+
+            thingySdkManager.enableMotionNotifications(dev, true);
+
+            thingySdkManager.setMotionProcessingFrequency(dev, ThingyUtils.MPU_FREQ_MAX_INTERVAL);
+
+            gatt = dev.connectGatt(getApplicationContext(), true, gattCallback);
+        }*/
+
+    }
+
     @Override
     public void onServiceConnected() {
-        mBinder = thingySdkManager.getThingyBinder();
+        mBinder = (BaseTService.ThingyBinder) thingySdkManager.getThingyBinder();
     }
 
     private ThingyListener mThingyListener = new ThingyListener() {
@@ -321,17 +356,7 @@ public class MainActivity extends AppCompatActivity implements ThingySdkManager.
 
         @Override
         public void onServiceDiscoveryCompleted(BluetoothDevice device) {
-            //BLE STATE
-            thingySdkManager.enableButtonStateNotification(device, true);
 
-            //BATTERY STATE
-            thingySdkManager.enableBatteryLevelNotifications(device, true);
-
-            thingySdkManager.enableMotionNotifications(device, true);
-
-            thingySdkManager.setMotionProcessingFrequency(device, ThingyUtils.MPU_FREQ_MAX_INTERVAL);
-
-            gatt = device.connectGatt(getApplicationContext(), true, gattCallback);
         }
 
         @Override
@@ -367,10 +392,7 @@ public class MainActivity extends AppCompatActivity implements ThingySdkManager.
         @Override
         public void onButtonStateChangedEvent(BluetoothDevice bluetoothDevice, int buttonState) {
             int x = 1;
-
-
-            gatt.readRemoteRssi();
-
+            //gatt.readRemoteRssi();
         }
 
         @Override
@@ -396,8 +418,7 @@ public class MainActivity extends AppCompatActivity implements ThingySdkManager.
         @Override
         public void onAccelerometerValueChangedEvent(BluetoothDevice bluetoothDevice, float x, float y, float z) {
             int e3w = 1;
-
-            gatt.readRemoteRssi();
+           //  gatt.readRemoteRssi();
         }
 
         @Override
@@ -456,6 +477,7 @@ public class MainActivity extends AppCompatActivity implements ThingySdkManager.
         NordicDeviceDetailFragment fragment = new NordicDeviceDetailFragment(null, position);
         fragment.show(getSupportFragmentManager(), "bottom_nav_sheet_dialog");
     }
+
 }
 
 

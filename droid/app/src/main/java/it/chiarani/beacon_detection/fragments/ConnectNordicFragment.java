@@ -78,7 +78,7 @@ public class ConnectNordicFragment extends BottomSheetDialogFragment implements 
 
         thingySdkManager = ThingySdkManager.getInstance();
 
-        ThingyListenerHelper.registerThingyListener(getActivity().getApplicationContext(), mThingyListener);
+        ThingyListenerHelper.registerThingyListener(getContext(), mThingyListener);
 
         setRecyclerViewBinding();
 
@@ -137,7 +137,7 @@ public class ConnectNordicFragment extends BottomSheetDialogFragment implements 
         } else {
             if(scanResultList.containsKey(nordicDeviceEntityList.get(pos).getAddress())) {
                 BluetoothDevice dev = scanResultList.get(nordicDeviceEntityList.get(pos).getAddress());
-                thingySdkManager.connectToThingy(getActivity().getApplicationContext(), dev, BaseTService.class);
+                thingySdkManager.connectToThingy(getContext(), dev, BaseTService.class);
             }
         }
 
