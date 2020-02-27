@@ -305,9 +305,52 @@ public class MainActivity extends AppCompatActivity implements ThingySdkManager.
         for (BluetoothDevice dev : thingySdkManager.getConnectedDevices()){
 
             ThingyListenerHelper.registerThingyListener(getApplicationContext(), mThingyListener, dev);
+            //events
+            thingySdkManager.enableMotionNotifications(dev, true);
+            thingySdkManager.enableAirQualityNotifications(dev, true);
+            thingySdkManager.enableBatteryLevelNotifications(dev, true);
             thingySdkManager.enableButtonStateNotification(dev, true);
+            thingySdkManager.enableColorNotifications(dev, true);
+            // thingySdkManager.enableEnvironmentNotifications(dev, true); --> CREA DISCONNESSIONE
+            thingySdkManager.enableEulerNotifications(dev, true);
+            thingySdkManager.enableGravityVectorNotifications(dev, true);
+            thingySdkManager.enableHeadingNotifications(dev, true);
+            // thingySdkManager.enableHumidityNotifications(dev, true);//  --> CREA DISCONNESSIONE
+            thingySdkManager.enableOrientationNotifications(dev, true);
+            thingySdkManager.enablePedometerNotifications(dev, true);
+            thingySdkManager.enablePressureNotifications(dev, true);
+            thingySdkManager.enableQuaternionNotifications(dev, true);
+            thingySdkManager.enableRawDataNotifications(dev, true);
+            thingySdkManager.enableRotationMatrixNotifications(dev, true);
+            thingySdkManager.enableSoundNotifications(dev, true);
+            thingySdkManager.enableSpeakerStatusNotifications(dev, true);
+            thingySdkManager.enableTapNotifications(dev, true);
+            thingySdkManager.enableThingyMicrophone(dev, true);
+            thingySdkManager.enableUiNotifications(dev, true);
 
+           /* thingySdkManager.enableMotionNotifications(dev, true);
+            thingySdkManager.enableAirQualityNotifications(dev, true);
+            thingySdkManager.enableBatteryLevelNotifications(dev, true);
+            thingySdkManager.enableButtonStateNotification(dev, true);
+            thingySdkManager.enableColorNotifications(dev, true);
+            thingySdkManager.enableEnvironmentNotifications(dev, true);
+            thingySdkManager.enableEulerNotifications(dev, true);
+            thingySdkManager.enableGravityVectorNotifications(dev, true);
+            thingySdkManager.enableHeadingNotifications(dev, true);
+            thingySdkManager.enableHumidityNotifications(dev, true);
+            thingySdkManager.enableOrientationNotifications(dev, true);
+            thingySdkManager.enablePedometerNotifications(dev, true);
+            thingySdkManager.enablePressureNotifications(dev, true);
+            thingySdkManager.enableQuaternionNotifications(dev, true);
+            thingySdkManager.enableRawDataNotifications(dev, true);
+            thingySdkManager.enableRotationMatrixNotifications(dev, true);
+            thingySdkManager.enableSoundNotifications(dev, true);
+            thingySdkManager.enableSpeakerStatusNotifications(dev, true);
+            thingySdkManager.enableTapNotifications(dev, true);
+            thingySdkManager.enableThingyMicrophone(dev, true);
+            thingySdkManager.enableUiNotifications(dev, true);*/
 
+            // gatt = dev.connectGatt(getApplicationContext(), true, gattCallback);
 
            /* //BATTERY STATE
             thingySdkManager.enableBatteryLevelNotifications(dev, true);
@@ -346,12 +389,10 @@ public class MainActivity extends AppCompatActivity implements ThingySdkManager.
 
         @Override
         public void onDeviceConnected(BluetoothDevice device, int connectionState) {
-            int x = 1;
         }
 
         @Override
         public void onDeviceDisconnected(BluetoothDevice device, int connectionState) {
-
         }
 
         @Override
@@ -361,104 +402,105 @@ public class MainActivity extends AppCompatActivity implements ThingySdkManager.
 
         @Override
         public void onBatteryLevelChanged(BluetoothDevice bluetoothDevice, int batteryLevel) {
-            int x = 1;
+            Log.d("Callback", "1 ok");
         }
 
         @Override
         public void onTemperatureValueChangedEvent(BluetoothDevice bluetoothDevice, String temperature) {
-
+            Log.d("Callback", "2 ok");
         }
 
         @Override
         public void onPressureValueChangedEvent(BluetoothDevice bluetoothDevice, String pressure) {
-
+            Log.d("Callback", "3 ok");
         }
 
         @Override
         public void onHumidityValueChangedEvent(BluetoothDevice bluetoothDevice, String humidity) {
-
+            Log.d("Callback", "4 ok");
         }
 
         @Override
         public void onAirQualityValueChangedEvent(BluetoothDevice bluetoothDevice, int eco2, int tvoc) {
-
+            Log.d("Callback", "5 ok");
         }
 
         @Override
         public void onColorIntensityValueChangedEvent(BluetoothDevice bluetoothDevice, float red, float green, float blue, float alpha) {
-
+            Log.d("Callback", "6 ok");
         }
 
         @Override
         public void onButtonStateChangedEvent(BluetoothDevice bluetoothDevice, int buttonState) {
-            int x = 1;
+            Log.d("Callback", "7 ok");
             //gatt.readRemoteRssi();
         }
 
         @Override
         public void onTapValueChangedEvent(BluetoothDevice bluetoothDevice, int direction, int count) {
-
+            Log.d("Callback", "8 ok");
         }
 
         @Override
         public void onOrientationValueChangedEvent(BluetoothDevice bluetoothDevice, int orientation) {
-
+            Log.d("Callback", "9 ok");
         }
 
         @Override
         public void onQuaternionValueChangedEvent(BluetoothDevice bluetoothDevice, float w, float x, float y, float z) {
-
+            Log.d("Callback", "10 ok");
         }
 
         @Override
         public void onPedometerValueChangedEvent(BluetoothDevice bluetoothDevice, int steps, long duration) {
-
+            Log.d("Callback", "11 ok");
         }
 
         @Override
         public void onAccelerometerValueChangedEvent(BluetoothDevice bluetoothDevice, float x, float y, float z) {
-            int e3w = 1;
+            Log.d("Callback", "12 ok");
            //  gatt.readRemoteRssi();
         }
 
         @Override
         public void onGyroscopeValueChangedEvent(BluetoothDevice bluetoothDevice, float x, float y, float z) {
-
+            Log.d("Callback", "13 ok");
         }
 
         @Override
         public void onCompassValueChangedEvent(BluetoothDevice bluetoothDevice, float x, float y, float z) {
-
+            Log.d("Callback", "14 ok");
         }
 
         @Override
         public void onEulerAngleChangedEvent(BluetoothDevice bluetoothDevice, float roll, float pitch, float yaw) {
-
+            Log.d("Callback", "15 ok");
         }
 
         @Override
         public void onRotationMatrixValueChangedEvent(BluetoothDevice bluetoothDevice, byte[] matrix) {
-
+            Log.d("Callback", "16 ok");
         }
 
         @Override
         public void onHeadingValueChangedEvent(BluetoothDevice bluetoothDevice, float heading) {
-
+            Log.d("Callback", "17 ok");
         }
 
         @Override
         public void onGravityVectorChangedEvent(BluetoothDevice bluetoothDevice, float x, float y, float z) {
+            Log.d("Callback", "18 ok");
             // Log.d("onGravityVectorChangedEvent", "onGravityVectorChangedEvent: " + bluetoothDevice.getName() + x + "..." +y + "..." + z);
         }
 
         @Override
         public void onSpeakerStatusValueChangedEvent(BluetoothDevice bluetoothDevice, int status) {
-
+            Log.d("Callback", "19 ok");
         }
 
         @Override
         public void onMicrophoneValueChangedEvent(BluetoothDevice bluetoothDevice, byte[] data) {
-
+            Log.d("Callback", "20 ok");
         }
     };
 
@@ -466,9 +508,9 @@ public class MainActivity extends AppCompatActivity implements ThingySdkManager.
         @Override
         public void onReadRemoteRssi(BluetoothGatt gatt, int rssi, int status) {
             Log.d("gattCallback", "Rssi:" + rssi);
-            NordicDeviceEntity entity = new NordicDeviceEntity(gatt.getDevice().getAddress(), rssi, "Nordic:52");
+           /* NordicDeviceEntity entity = new NordicDeviceEntity(gatt.getDevice().getAddress(), rssi, "Nordic:52");
             mAppExecutors.diskIO().execute(() -> appDatabase.nordicDeviceDao().insert(entity));
-            nordicDeviceEntityList.add(entity);
+            nordicDeviceEntityList.add(entity);*/
         }
     };
 
