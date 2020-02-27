@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.TreeMap;
 
 import io.reactivex.Completable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -327,6 +328,8 @@ public class MainActivity extends AppCompatActivity implements ThingySdkManager.
             thingySdkManager.enableTapNotifications(dev, true);
             thingySdkManager.enableThingyMicrophone(dev, true);
             thingySdkManager.enableUiNotifications(dev, true);
+            thingySdkManager.setMotionProcessingFrequency(dev, ThingyUtils.MPU_FREQ_MAX_INTERVAL);
+            gatt = dev.connectGatt(getApplicationContext(), true, gattCallback);
 
            /* thingySdkManager.enableMotionNotifications(dev, true);
             thingySdkManager.enableAirQualityNotifications(dev, true);
@@ -385,6 +388,7 @@ public class MainActivity extends AppCompatActivity implements ThingySdkManager.
         mBinder = (BaseTService.ThingyBinder) thingySdkManager.getThingyBinder();
     }
 
+    HashMap<String, String> collectedData = new HashMap<>();
     private ThingyListener mThingyListener = new ThingyListener() {
 
         @Override
@@ -403,114 +407,138 @@ public class MainActivity extends AppCompatActivity implements ThingySdkManager.
         @Override
         public void onBatteryLevelChanged(BluetoothDevice bluetoothDevice, int batteryLevel) {
             Log.d("Callback", "1 ok");
+            collectedData.put("onBatteryLevelChanged", batteryLevel + "");
         }
 
         @Override
         public void onTemperatureValueChangedEvent(BluetoothDevice bluetoothDevice, String temperature) {
             Log.d("Callback", "2 ok");
+            collectedData.put("onTemperatureValueChangedEvent", temperature);
         }
 
         @Override
         public void onPressureValueChangedEvent(BluetoothDevice bluetoothDevice, String pressure) {
             Log.d("Callback", "3 ok");
+
+            collectedData.put("onPressureValueChangedEvent", pressure);
         }
 
         @Override
         public void onHumidityValueChangedEvent(BluetoothDevice bluetoothDevice, String humidity) {
             Log.d("Callback", "4 ok");
+
+            collectedData.put("onHumidityValueChangedEvent", humidity);
         }
 
         @Override
         public void onAirQualityValueChangedEvent(BluetoothDevice bluetoothDevice, int eco2, int tvoc) {
             Log.d("Callback", "5 ok");
+            collectedData.put("onAirQualityValueChangedEvent", eco2 + ";" + tvoc);
         }
 
         @Override
         public void onColorIntensityValueChangedEvent(BluetoothDevice bluetoothDevice, float red, float green, float blue, float alpha) {
             Log.d("Callback", "6 ok");
+            collectedData.put("onColorIntensityValueChangedEvent", red  + ";" + green  + ";" +blue  + ";" + alpha);
         }
 
         @Override
         public void onButtonStateChangedEvent(BluetoothDevice bluetoothDevice, int buttonState) {
             Log.d("Callback", "7 ok");
-            //gatt.readRemoteRssi();
+            collectedData.put("onButtonStateChangedEvent", buttonState + "");
         }
 
         @Override
         public void onTapValueChangedEvent(BluetoothDevice bluetoothDevice, int direction, int count) {
             Log.d("Callback", "8 ok");
+            collectedData.put("onTapValueChangedEvent", direction + ";" +count);
         }
 
         @Override
         public void onOrientationValueChangedEvent(BluetoothDevice bluetoothDevice, int orientation) {
             Log.d("Callback", "9 ok");
+            collectedData.put("onOrientationValueChangedEvent", orientation + "");
         }
 
         @Override
         public void onQuaternionValueChangedEvent(BluetoothDevice bluetoothDevice, float w, float x, float y, float z) {
             Log.d("Callback", "10 ok");
+            collectedData.put("onQuaternionValueChangedEvent", w + ";" + x + ";" + y + ";" +z);
         }
 
         @Override
         public void onPedometerValueChangedEvent(BluetoothDevice bluetoothDevice, int steps, long duration) {
             Log.d("Callback", "11 ok");
+            collectedData.put("onPedometerValueChangedEvent", steps + ";" +duration);
         }
 
         @Override
         public void onAccelerometerValueChangedEvent(BluetoothDevice bluetoothDevice, float x, float y, float z) {
             Log.d("Callback", "12 ok");
-           //  gatt.readRemoteRssi();
+            collectedData.put("onAccelerometerValueChangedEvent", x + ";" + y + ";" + z);
+            gatt.readRemoteRssi();
         }
 
         @Override
         public void onGyroscopeValueChangedEvent(BluetoothDevice bluetoothDevice, float x, float y, float z) {
             Log.d("Callback", "13 ok");
+            collectedData.put("onGyroscopeValueChangedEvent", x + ";" +y + ";" +z);
+            gatt.readRemoteRssi();
         }
 
         @Override
         public void onCompassValueChangedEvent(BluetoothDevice bluetoothDevice, float x, float y, float z) {
             Log.d("Callback", "14 ok");
+            collectedData.put("onCompassValueChangedEvent", x + ";" +y + ";" +z);
         }
 
         @Override
         public void onEulerAngleChangedEvent(BluetoothDevice bluetoothDevice, float roll, float pitch, float yaw) {
             Log.d("Callback", "15 ok");
+            collectedData.put("onEulerAngleChangedEvent", roll + ";" +pitch +";"+ yaw) ;
         }
 
         @Override
         public void onRotationMatrixValueChangedEvent(BluetoothDevice bluetoothDevice, byte[] matrix) {
             Log.d("Callback", "16 ok");
+            collectedData.put("onRotationMatrixValueChangedEvent", "");
         }
 
         @Override
         public void onHeadingValueChangedEvent(BluetoothDevice bluetoothDevice, float heading) {
             Log.d("Callback", "17 ok");
+            collectedData.put("onHeadingValueChangedEvent", heading + ";");
         }
 
         @Override
         public void onGravityVectorChangedEvent(BluetoothDevice bluetoothDevice, float x, float y, float z) {
             Log.d("Callback", "18 ok");
-            // Log.d("onGravityVectorChangedEvent", "onGravityVectorChangedEvent: " + bluetoothDevice.getName() + x + "..." +y + "..." + z);
+            collectedData.put("onHeadingValueChangedEvent", x + ";" +y + ";" +z);
         }
 
         @Override
         public void onSpeakerStatusValueChangedEvent(BluetoothDevice bluetoothDevice, int status) {
             Log.d("Callback", "19 ok");
+            collectedData.put("onSpeakerStatusValueChangedEvent", status + "");
         }
 
         @Override
         public void onMicrophoneValueChangedEvent(BluetoothDevice bluetoothDevice, byte[] data) {
             Log.d("Callback", "20 ok");
+            collectedData.put("onMicrophoneValueChangedEvent", data.toString());
+
         }
     };
 
     BluetoothGattCallback gattCallback = new BluetoothGattCallback() {
         @Override
         public void onReadRemoteRssi(BluetoothGatt gatt, int rssi, int status) {
-            Log.d("gattCallback", "Rssi:" + rssi);
-           /* NordicDeviceEntity entity = new NordicDeviceEntity(gatt.getDevice().getAddress(), rssi, "Nordic:52");
-            mAppExecutors.diskIO().execute(() -> appDatabase.nordicDeviceDao().insert(entity));
-            nordicDeviceEntityList.add(entity);*/
+            String tmp = "";
+            for(String key : collectedData.keySet()) {
+                tmp += key + ";";
+            }
+            Log.d("gattCallback", "Rssi:" + rssi +", size:" +  collectedData.size() + ", VAL:" + tmp);
+            collectedData.clear();
         }
     };
 
